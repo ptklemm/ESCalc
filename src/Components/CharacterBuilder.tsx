@@ -22,29 +22,42 @@ export default function CharacterBuilder() {
         if (!value || value == character.Class)
             return;
 
+        let newCharacter: Character;
+
         switch (value) {
             case CharacterClass.Amazon:
-                setCharacter(new Character(CharacterClass.Amazon));
+                newCharacter = new Character(CharacterClass.Amazon);
                 break;
             case CharacterClass.Assassin:
-                setCharacter(new Character(CharacterClass.Assassin));
+                newCharacter = new Character(CharacterClass.Assassin);
                 break;
             case CharacterClass.Barbarian:
-                setCharacter(new Character(CharacterClass.Barbarian));
+                newCharacter = new Character(CharacterClass.Barbarian);
                 break;
             case CharacterClass.Druid:
-                setCharacter(new Character(CharacterClass.Druid));
+                newCharacter = new Character(CharacterClass.Druid);
                 break;
             case CharacterClass.Necromancer:
-                setCharacter(new Character(CharacterClass.Necromancer));
+                newCharacter = new Character(CharacterClass.Necromancer);
                 break;
             case CharacterClass.Paladin:
-                setCharacter(new Character(CharacterClass.Paladin));
+                newCharacter = new Character(CharacterClass.Paladin);
                 break;
             case CharacterClass.Sorceress:
-                setCharacter(new Character(CharacterClass.Sorceress));
+                newCharacter = new Character(CharacterClass.Sorceress);
                 break;
+            default:
+                newCharacter = new Character();
         }
+
+        setCharacter(newCharacter);
+        setLevel(String(newCharacter.Level));
+        setAttributes({
+            strength: String(newCharacter.Strength),
+            dexterity: String(newCharacter.Dexterity),
+            vitality: String(newCharacter.Vitality),
+            energy: String(newCharacter.Energy)
+        });
     }
 
     function handleLevelBlur(event: FocusEvent<HTMLInputElement>) {
