@@ -4,12 +4,8 @@ import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
 import { ItemLibrary, LibraryType } from '../types/ItemLibrary';
 import { ItemTables } from './BaseItems';
-import { ItemType } from '../types/ItemType';
 
 const items = new ItemLibrary();
-console.log(items);
-console.log(items.GetItemByCode('0xb'));
-// console.log(items.FindItemByCode('7b8'))
 
 export default function ItemBrowser() {
     return (
