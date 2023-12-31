@@ -33,6 +33,13 @@ export const DIFFICULTIES = [
     Difficulty.Hell
 ];
 
+export enum Attribute {
+    Strength = "Strength",
+    Dexterity = "Dexterity",
+    Vitality = "Vitality",
+    Energy = "Energy"
+}
+
 export class Character {
     public Name: string;
     public Class: CharacterClass;

@@ -1,15 +1,22 @@
-import { useState } from 'react';
+import { useState, ChangeEvent, FocusEvent } from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import { HorizontalInput, HorizontalSelect, StatDisplay } from './FormComponents';
-import { Character, CharacterClass, CLASSES, DIFFICULTIES, Difficulty } from '../types/Character';
+import { Character, CharacterClass, CLASSES, DIFFICULTIES, Difficulty, Attribute } from '../types/Character';
 import { CharacterStats } from '../types/CharacterStats';
 
 export default function CharacterBuilder() {
     const [character, setCharacter] = useState(new Character());
+    const [level, setLevel] = useState(String(character.Level));
+    const [attributes, setAttributes] = useState({
+        strength: String(character.Strength),
+        dexterity: String(character.Dexterity),
+        vitality: String(character.Vitality),
+        energy: String(character.Energy)
+    });
 
-    function handleClassSelect(event: React.ChangeEvent<HTMLSelectElement>) {
+    function handleClassSelect(event: ChangeEvent<HTMLSelectElement>) {
         const value = event.target.value;
 
         if (!value || value == character.Class)
@@ -37,21 +44,25 @@ export default function CharacterBuilder() {
             case CharacterClass.Sorceress:
                 setCharacter(new Character(CharacterClass.Sorceress));
                 break;
-            default:
-                setCharacter(new Character());
         }
     }
 
-    function handleLevelChange(event: React.ChangeEvent<HTMLInputElement>) {
-        const value = event.target.valueAsNumber;
+    function handleLevelBlur(event: FocusEvent<HTMLInputElement>) {
+        let value = Number(event.target.value);
 
-        if (!value || value == character.Level)
-            return;
+        if (!value) {
+            value = character.Level;
+        } else if (value < 1) {
+            value = 1;
+        } else if (value > 99) {
+            value = 99;
+        }
 
-        setCharacter({ ...character, Level: value});
+        setLevel(String(value));
+        setCharacter({ ...character, Level: value });
     }
 
-    function handleDifficultyChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    function handleDifficultyChange(event: ChangeEvent<HTMLSelectElement>) {
         const value = event.target.value;
 
         if (!value || value == character.Difficulty)
@@ -67,29 +78,57 @@ export default function CharacterBuilder() {
             case Difficulty.Hell:
                 setCharacter({ ...character, Difficulty: Difficulty.Hell});
                 break;
-            default:
-                setCharacter({ ...character, Difficulty: Difficulty.Normal});
         }
     }
 
-    function handleAttributeChange(event: React.ChangeEvent<HTMLInputElement>) {
+    function handleAttributeChange(event: ChangeEvent<HTMLInputElement>) {
         const attribute = event.target.id;
-        const value = event.target.valueAsNumber;
+        const value = event.target.value;
+        switch (attribute) {
+            case Attribute.Strength:
+                setAttributes({ ...attributes, strength: value});
+                break;
+            case Attribute.Dexterity:
+                setAttributes({ ...attributes, dexterity: value});
+                break;
+            case Attribute.Vitality:
+                setAttributes({ ...attributes, vitality: value});
+                break;
+            case Attribute.Energy:
+                setAttributes({ ...attributes, energy: value});
+                break;
+        }
+    }
 
-        if (!value || value == character[attribute as keyof Character])
-            return;
+    function handleAttributeBlur(event: FocusEvent<HTMLInputElement>) {
+        const attribute = event.target.id;
+        let value = Number(event.target.value);
+        const currentValue = character[attribute as keyof Character] as number;
+        const baseValue = character[`Base${attribute}` as keyof Character] as number;
+
+        if (!value) {
+            value = currentValue;
+        } else if (value < currentValue) {
+            value = baseValue;
+        } else if ( value > 1023) {
+            value = 1023; // max display value for attributes
+        }
 
         switch (attribute) {
-            case "Strength":
+            case Attribute.Strength:
+                setAttributes({ ...attributes, strength: String(value)});
                 setCharacter({ ...character, Strength: value });
                 break;
-            case "Dexterity":
+            case Attribute.Dexterity:
+                setAttributes({ ...attributes, dexterity: String(value)});
                 setCharacter({ ...character, Dexterity: value });
                 break;
-            case "Vitality":
+            case Attribute.Vitality:
+                setAttributes({ ...attributes, vitality: String(value)});
                 setCharacter({ ...character, Vitality: value });
                 break;
-            case "Energy":
+            case Attribute.Energy:
+                setAttributes({ ...attributes, energy: String(value)});
                 setCharacter({ ...character, Energy: value });
                 break;
         }
@@ -97,19 +136,18 @@ export default function CharacterBuilder() {
 
     // Calculate new modified stats before render
     const stats = new CharacterStats(character);
-    console.log(stats);
 
     return (
         <Row id="CharacterBuilder">
             <Col md={2}>
                 <Form id="Character">
                     <HorizontalSelect id="Class" label="Class" options={CLASSES} value={character.Class} onChange={handleClassSelect} />
-                    <HorizontalInput id="Level" label="Level" type="number" min={1} max={99} value={character.Level} onChange={handleLevelChange} />
+                    <HorizontalInput id="Level" label="Level" value={level} onChange={e => setLevel(e.target.value)} onBlur={handleLevelBlur} />
                     <HorizontalSelect id="Difficulty" label="Difficulty" options={DIFFICULTIES} value={character.Difficulty} onChange={handleDifficultyChange} />
-                    <HorizontalInput id="Strength" label="Strength" type="number" min={character.BaseStrength} value={character.Strength} onChange={handleAttributeChange} />
-                    <HorizontalInput id="Dexterity" label="Dexterity" type="number" min={character.BaseDexterity} value={character.Dexterity} onChange={handleAttributeChange} />
-                    <HorizontalInput id="Vitality" label="Vitality" type="number" min={character.BaseVitality} value={character.Vitality} onChange={handleAttributeChange} />
-                    <HorizontalInput id="Energy" label="Energy" type="number" min={character.BaseEnergy} value={character.Energy} onChange={handleAttributeChange} />
+                    <HorizontalInput id={Attribute.Strength} label={Attribute.Strength} value={attributes.strength} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                    <HorizontalInput id={Attribute.Dexterity} label={Attribute.Dexterity} value={attributes.dexterity} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                    <HorizontalInput id={Attribute.Vitality} label={Attribute.Vitality} value={attributes.vitality} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                    <HorizontalInput id={Attribute.Energy} label={Attribute.Energy} value={attributes.energy} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
                     <StatDisplay>Points Remaining: {stats.StatPointsRemaining}</StatDisplay>
                     <StatDisplay>Modified Strength: {stats.Strength}</StatDisplay>
                     <StatDisplay>Modified Dexterity: {stats.Dexterity}</StatDisplay>
