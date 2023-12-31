@@ -41,6 +41,7 @@ export enum Attribute {
 }
 
 export class Character {
+    //#region Properties
     public Name: string;
     public Class: CharacterClass;
     public Level: number;
@@ -71,6 +72,7 @@ export class Character {
     public Energy: number;
 
     public ToHitFactor: number;
+    //#endregion
 
     constructor(characterClass?: CharacterClass, name?: string) {
         this.Class = characterClass || CharacterClass.Amazon;

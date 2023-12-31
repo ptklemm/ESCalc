@@ -1,5 +1,17 @@
+import Breadcrumb from 'react-bootstrap/Breadcrumb';
 import Table from 'react-bootstrap/Table';
 import { Item } from '../types/Item';
+import { LibraryType } from '../types/ItemLibrary';
+
+type TableProps = { header: string; items: Item[]; }
+
+function ItemTablesBreadcrumb({ tables }: { tables: TableProps[]}) {
+    return (
+        <Breadcrumb>
+            {tables.map(table => <Breadcrumb.Item key={table.header} href={`#${table.header}`}>{table.header}</Breadcrumb.Item>)}
+        </Breadcrumb>
+    );
+}
 
 export function ArmorTable(props: { items: Item[], header: string }) {
     return (
@@ -104,5 +116,27 @@ export function WeaponTable(props: { items: Item[], header: string }) {
                 })}
             </tbody>
         </Table>
+    );
+}
+
+type ItemTablesProps = {
+    id: string,
+    libraryType: string,
+    tables: TableProps[]
+}
+
+export function ItemTables(props: ItemTablesProps) {
+    const { id, libraryType, tables } = props;
+    const breadcrumb = <ItemTablesBreadcrumb tables={tables} />
+    return (
+        <div id={id}>
+            {tables.map(table =>
+                <div key={table.header} id={table.header}>
+                    {breadcrumb}
+                    {libraryType == LibraryType.Armor && <ArmorTable items={table.items} header={table.header} />}
+                    {libraryType == LibraryType.Weapons && <WeaponTable items={table.items} header={table.header} />}
+                </div>
+            )}
+        </div>
     );
 }

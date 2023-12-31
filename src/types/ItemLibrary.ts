@@ -5,6 +5,11 @@ import { ItemData } from './ItemData';
 import ArmorData from '../data/json/Armor.json';
 import WeaponData from '../data/json/Weapons.json';
 
+export enum LibraryType {
+    Armor = "Armor",
+    Weapons = "Weapons"
+}
+
 function Filter(items: Item[], predicate: _.ListIterateeCustom<Item, boolean> | undefined) {
     return _(items)
                 .filter(predicate)
