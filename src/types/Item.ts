@@ -2,6 +2,7 @@ import strings from '../data/json/strings.json';
 import ItemTypes from '../data/json/ItemTypes.json';
 import { ItemData } from './ItemData';
 import { ToNumber } from './utilities';
+import { ItemType } from './ItemType';
 
 export enum BodyLocation {
     Head ="head",
@@ -38,6 +39,24 @@ export enum ClassRestriction {
     Sorceress = "sor"
 }
 
+function recurseItemTypes(codeList: ItemType[], types: any[], codeToFind: ItemType): any {
+    const codeToAdd = types.find(itemType => itemType.Code == codeToFind);
+
+    if (codeToAdd && !codeList.includes(codeToAdd.Code)) {
+        codeList.push(codeToAdd.Code);
+
+        if (codeToAdd.Equiv1) {
+            recurseItemTypes(codeList, types, codeToAdd.Equiv1);
+        }
+
+        if (codeToAdd.Equiv2) {
+            recurseItemTypes(codeList, types, codeToAdd.Equiv2);
+        }
+    }
+
+    return codeToAdd;
+}
+
 export class Item {
     public Code: string;
     public CodeNormal: string;
@@ -45,9 +64,9 @@ export class Item {
     public CodeElite: string;
     public Tier: ItemTier;
 
-    public Type: string;
-    public TypeNames: string[];
+    public Type: ItemType;
     public Type2: string;
+    public TypeCodes: ItemType[];
 
     public IsWearable: boolean;
     public BodyLocations: Set<string>;
@@ -113,11 +132,11 @@ export class Item {
                 break;
         }
 
-        this.Type = d.type;
-        const itemType = ItemTypes.find(itemType => this.Type == itemType.Code);
-        this.TypeNames = [];
-        this.TypeNames.push(itemType ? itemType.ItemType : "");
+        this.Type = d.type as ItemType;
         this.Type2 = d.type2;
+
+        this.TypeCodes = [];
+        const itemType = recurseItemTypes(this.TypeCodes, ItemTypes, this.Type);
 
         this.IsWearable = Boolean(ToNumber(itemType?.Body));
         this.BodyLocations = new Set();
@@ -145,7 +164,7 @@ export class Item {
         this.RequiredStrength = ToNumber(d.reqstr);
         this.RequiredDexterity = ToNumber(d.reqdex);
     
-        this.IsInsertable = Boolean(ToNumber(itemType?.Gem)); 
+        this.IsInsertable = Boolean(ToNumber(itemType?.Gem as string)); 
         this.IsSocketable = Boolean(ToNumber(d.hasinv));
         this.MaxSockets = ToNumber(d.gemsockets);
         this.SocketType = GemType[ToNumber(d.gemapplytype) as keyof typeof GemType];

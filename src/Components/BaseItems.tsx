@@ -3,12 +3,16 @@ import Table from 'react-bootstrap/Table';
 import { Item } from '../types/Item';
 import { LibraryType } from '../types/ItemLibrary';
 
-type TableProps = { header: string; items: Item[]; }
+type TableProps = {
+    header: string; 
+    items: Item[]; 
+    crumb?: string;
+}
 
 function ItemTablesBreadcrumb({ tables }: { tables: TableProps[]}) {
     return (
         <Breadcrumb>
-            {tables.map(table => <Breadcrumb.Item key={table.header} href={`#${table.header}`}>{table.header}</Breadcrumb.Item>)}
+            {tables.map(table => <Breadcrumb.Item key={table.header} href={`#${table.header}`}>{table.crumb || table.header}</Breadcrumb.Item>)}
         </Breadcrumb>
     );
 }
