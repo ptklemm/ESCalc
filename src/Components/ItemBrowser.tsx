@@ -2,32 +2,35 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
-import { ItemLibrary, LibraryType } from '../types/ItemLibrary';
-import { ItemTables } from './BaseItems';
+import { ItemCatalog, Category } from '../types/ItemCatalog';
+import { ItemTables } from './ItemTables';
 
-const items = new ItemLibrary();
+const items = new ItemCatalog();
 
 export default function ItemBrowser() {
     return (
-        <Tab.Container id="ItemBrowser" defaultActiveKey="armor" transition={false}>
+        <Tab.Container id="ItemBrowser" defaultActiveKey={Category.Armor} transition={false}>
             <Row>
                 <Col md={2}>
                     <Nav className="flex-column">
-                        <Nav.Link eventKey="search">Search</Nav.Link>
-                        <Nav.Link eventKey="armor">Base Armor</Nav.Link>
-                        <Nav.Link eventKey="weapons">Base Weapons</Nav.Link>
-                        <Nav.Link eventKey="unique-armor">Unique Armor</Nav.Link>
-                        <Nav.Link eventKey="unique-weapons">Unique Weapons</Nav.Link>
-                        <Nav.Link eventKey="sets">Sets</Nav.Link>
-                        <Nav.Link eventKey="gems">Gems/Runes</Nav.Link>
-                        <Nav.Link eventKey="runewords">Runewords</Nav.Link>
-                        <Nav.Link eventKey="gemwords">Gemwords</Nav.Link>
+                        <Nav.Link eventKey="Search">Search</Nav.Link>
+                        <Nav.Link eventKey={Category.Armor}>Base Armor</Nav.Link>
+                        <Nav.Link eventKey={Category.Weapons}>Base Weapons</Nav.Link>
+                        <Nav.Link eventKey={Category.UniqueArmor}>Unique Armor</Nav.Link>
+                        <Nav.Link eventKey={Category.UniqueWeapons}>Unique Weapons</Nav.Link>
+                        <Nav.Link eventKey={Category.Sets}>Sets</Nav.Link>
+                        <Nav.Link eventKey={Category.Gems}>Gems/Runes</Nav.Link>
+                        <Nav.Link eventKey={Category.Runewords}>Runewords</Nav.Link>
+                        <Nav.Link eventKey={Category.Gemwords}>Gemwords</Nav.Link>
                     </Nav>
                 </Col>
                 <Col>
                     <Tab.Content>
-                        <Tab.Pane eventKey="armor">
-                            <ItemTables id="BaseArmor" libraryType={LibraryType.Armor} tables={[
+                        <Tab.Pane eventKey="Search">
+                            <div>Search</div>
+                        </Tab.Pane>
+                        <Tab.Pane eventKey={Category.Armor}>
+                            <ItemTables id="BaseArmor" category={Category.Armor} tables={[
                                 { header: "Helms", items: items.Helms },
                                 { header: "Circlets", items: items.Circlets },
                                 { header: "Pelts", items: items.Pelts },
@@ -42,8 +45,8 @@ export default function ItemBrowser() {
                                 { header: "Boots", items: items.Boots }
                             ]}/>
                         </Tab.Pane>
-                        <Tab.Pane eventKey="weapons">
-                            <ItemTables id="BaseWeapons" libraryType={LibraryType.Weapons} tables={[
+                        <Tab.Pane eventKey={Category.Weapons}>
+                            <ItemTables id="BaseWeapons" category={Category.Weapons} tables={[
                                 { header: "Axes", items: items.Axes },
                                 { header: "Bows", items: items.Bows },
                                 { header: "Crossbows", items: items.Crossbows },
@@ -67,12 +70,12 @@ export default function ItemBrowser() {
                                 { header: "Sorceress Weapons", items: items.SorceressWeapons, crumb: "Sorceress" }
                             ]}/>
                         </Tab.Pane>
-                        <Tab.Pane eventKey="unique-armor">Unique Armor</Tab.Pane>
-                        <Tab.Pane eventKey="unique-weapons">Unique Weapons</Tab.Pane>
-                        <Tab.Pane eventKey="sets">Sets</Tab.Pane>
-                        <Tab.Pane eventKey="gems">Gems/Runes</Tab.Pane>
-                        <Tab.Pane eventKey="runewords">Runewords</Tab.Pane>
-                        <Tab.Pane eventKey="gemwords">Gemwords</Tab.Pane>
+                        <Tab.Pane eventKey={Category.UniqueArmor}>Unique Armor</Tab.Pane>
+                        <Tab.Pane eventKey={Category.UniqueWeapons}>Unique Weapons</Tab.Pane>
+                        <Tab.Pane eventKey={Category.Sets}>Sets</Tab.Pane>
+                        <Tab.Pane eventKey={Category.Gems}>Gems/Runes</Tab.Pane>
+                        <Tab.Pane eventKey={Category.Runewords}>Runewords</Tab.Pane>
+                        <Tab.Pane eventKey={Category.Gemwords}>Gemwords</Tab.Pane>
                     </Tab.Content>
                 </Col>
             </Row>
