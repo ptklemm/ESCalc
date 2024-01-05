@@ -5,10 +5,12 @@ import {
     RouterProvider,
 } from "react-router-dom";
 import ESCalc from './ESCalc.tsx';
-import CharacterBuilder from './Components/CharacterBuilder.tsx';
-import ItemBrowser from './Components/ItemBrowser.tsx';
+import CharacterBuilder from './Components/CharacterBuilder/CharacterBuilder.tsx';
+import ItemBrowser from './Components/ItemBrowser/ItemBrowser.tsx';
 import ErrorPage from "./Components/ErrorPage.tsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { store } from './redux/store.ts';
+import { Provider as ReduxProvider } from 'react-redux';
 
 const router = createBrowserRouter([{
     path: "/",
@@ -22,6 +24,8 @@ const router = createBrowserRouter([{
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <RouterProvider router={router} />
+        <ReduxProvider store={store}>
+            <RouterProvider router={router} />
+        </ReduxProvider>
     </React.StrictMode>
 );

@@ -1,7 +1,7 @@
-
 import CharacterStats from '../data/json/CharacterStats.json';
 
-export const enum CharacterClass {
+export enum CharacterClass {
+    Empty = "",
     Amazon = "Amazon",
     Assassin = "Assassin",
     Barbarian = "Barbarian",
@@ -11,26 +11,31 @@ export const enum CharacterClass {
     Sorceress = "Sorceress"
 }
 
-export const CLASSES = [
-    CharacterClass.Amazon,
-    CharacterClass.Assassin,
-    CharacterClass.Barbarian,
-    CharacterClass.Druid,
-    CharacterClass.Necromancer,
-    CharacterClass.Paladin,
-    CharacterClass.Sorceress
+export const CLASS_OPTIONS_MINIMAL = [
+    {label: CharacterClass.Amazon, value: CharacterClass.Amazon},
+    {label: CharacterClass.Assassin, value: CharacterClass.Assassin},
+    {label: CharacterClass.Barbarian, value: CharacterClass.Barbarian},
+    {label: CharacterClass.Druid, value: CharacterClass.Druid},
+    {label: CharacterClass.Necromancer, value: CharacterClass.Necromancer},
+    {label: CharacterClass.Paladin, value: CharacterClass.Paladin},
+    {label: CharacterClass.Sorceress, value: CharacterClass.Sorceress}
 ];
 
-export const enum Difficulty {
+export const CLASS_OPTIONS = [
+    {label: CharacterClass.Empty, value: CharacterClass.Empty},
+    ...CLASS_OPTIONS_MINIMAL
+];
+
+export enum Difficulty {
     Normal = "Normal",
     Nightmare = "Nightmare",
     Hell = "Hell"
 }
 
-export const DIFFICULTIES = [
-    Difficulty.Normal,
-    Difficulty.Nightmare,
-    Difficulty.Hell
+export const DIFFICULTY_OPTIONS = [
+    {label: Difficulty.Normal, value: Difficulty.Normal},
+    {label: Difficulty.Nightmare, value: Difficulty.Nightmare},
+    {label: Difficulty.Hell, value: Difficulty.Hell}
 ];
 
 export enum Attribute {
@@ -40,90 +45,102 @@ export enum Attribute {
     Energy = "Energy"
 }
 
-export class Character {
-    //#region Properties
-    public Name: string;
-    public Class: CharacterClass;
-    public Level: number;
-    public Difficulty: Difficulty;
-
+export interface Character {
+    Name: string;
+    Class: CharacterClass;
+    Level: number;
+    DifficultyLevel: Difficulty;
     // ToDo: Quest Completion for stats, skills, resists
+    BaseStrength: number;
+    BaseDexterity: number;
+    BaseVitality: number;
+    BaseEnergy: number;
+    BaseLife: number;
+    BaseMana: number;
+    BaseStamina: number;
+    StatPointsPerLevel: number;
+    LifePerLevel: number;
+    ManaPerLevel: number;
+    StaminaPerLevel: number;
+    LifePerVitality: number;
+    ManaPerEnergy: number;
+    StaminaPerVitality: number;
+    Strength: number;
+    Dexterity: number;
+    Vitality: number;
+    Energy: number;
+    ToHitFactor: number;
+}
 
-    // Base stats
-    public BaseStrength: number;
-    public BaseDexterity: number;
-    public BaseVitality: number;
-    public BaseEnergy: number;
-    public BaseLife: number;
-    public BaseMana: number;
-    public BaseStamina: number;
-    // Stat scaling values
-    public StatPointsPerLevel: number;
-    public LifePerLevel: number;
-    public ManaPerLevel: number;
-    public StaminaPerLevel: number;
-    public LifePerVitality: number;
-    public ManaPerEnergy: number;
-    public StaminaPerVitality: number;
-    // Stats modified by investing stat points
-    public Strength: number;
-    public Dexterity: number;
-    public Vitality: number;
-    public Energy: number;
+export const NewCharacter = (characterClass?: CharacterClass, name?: string): Character => {
+    const Class = characterClass || CharacterClass.Amazon;
+    const Name = name || "";
+    const Level = 1;
+    const DifficultyLevel = Difficulty.Normal;
+    let BaseStrength = 15;
+    let BaseDexterity = 15;
+    let BaseVitality = 15;
+    let BaseEnergy = 15;
+    let BaseLife = BaseVitality;
+    let BaseMana = BaseEnergy;
+    let BaseStamina = 80;
+    let StatPointsPerLevel = 5;
+    let LifePerLevel = 0;
+    let ManaPerLevel = 0;
+    let StaminaPerLevel = 0;
+    let LifePerVitality = 0;
+    let ManaPerEnergy = 0;
+    let StaminaPerVitality = 0;
+    let ToHitFactor = 0;
 
-    public ToHitFactor: number;
-    //#endregion
+    const baseStats = CharacterStats.find(characterStatData => characterStatData.class == Class);
 
-    constructor(characterClass?: CharacterClass, name?: string) {
-        this.Class = characterClass || CharacterClass.Amazon;
-        this.Name = name || "";
-        this.Level = 1;
-        this.Difficulty = Difficulty.Normal;
+    if (baseStats) {
+        BaseStrength = Number(baseStats.str);
+        BaseDexterity = Number(baseStats.dex);
+        BaseVitality = Number(baseStats.vit);
+        BaseEnergy = Number(baseStats.int);
+        BaseLife = BaseVitality + Number(baseStats.hpadd);
+        BaseMana = BaseEnergy;
+        BaseStamina = Number(baseStats.stamina);
+        StatPointsPerLevel = Number(baseStats.StatPerLevel);
+        LifePerLevel = Number(baseStats.LifePerLevel);
+        ManaPerLevel = Number(baseStats.ManaPerLevel);
+        StaminaPerLevel = Number(baseStats.StaminaPerLevel);
+        LifePerVitality = Number(baseStats.LifePerVitality);
+        ManaPerEnergy = Number(baseStats.ManaPerMagic);
+        StaminaPerVitality = Number(baseStats.StaminaPerVitality);
+        ToHitFactor = Number(baseStats.ToHitFactor);
+    }
 
-        this.BaseStrength = 15;
-        this.BaseDexterity = 15;
-        this.BaseVitality = 15;
-        this.BaseEnergy = 15;
+    const Strength = BaseStrength;
+    const Dexterity = BaseDexterity;
+    const Vitality = BaseVitality;
+    const Energy = BaseEnergy;
 
-        this.BaseLife = this.BaseVitality;
-        this.BaseMana = this.BaseEnergy;
-        this.BaseStamina = 80;
-
-        this.StatPointsPerLevel = 5;
-        this.LifePerLevel = 0;
-        this.ManaPerLevel = 0;
-        this.StaminaPerLevel = 0;
-        this.LifePerVitality = 0;
-        this.ManaPerEnergy = 0;
-        this.StaminaPerVitality = 0;
-
-        this.ToHitFactor = 0;
-
-        const baseStats = CharacterStats.find((characterStatSet) => {
-            return characterStatSet.class == this.Class;
-        });
-
-        if (baseStats) {
-            this.BaseStrength = Number(baseStats.str);
-            this.BaseDexterity = Number(baseStats.dex);
-            this.BaseVitality = Number(baseStats.vit);
-            this.BaseEnergy = Number(baseStats.int);
-            this.BaseLife = this.BaseVitality + Number(baseStats.hpadd);
-            this.BaseMana = this.BaseEnergy;
-            this.BaseStamina = Number(baseStats.stamina);
-            this.StatPointsPerLevel = Number(baseStats.StatPerLevel);
-            this.LifePerLevel = Number(baseStats.LifePerLevel);
-            this.ManaPerLevel = Number(baseStats.ManaPerLevel);
-            this.StaminaPerLevel = Number(baseStats.StaminaPerLevel);
-            this.LifePerVitality = Number(baseStats.LifePerVitality);
-            this.ManaPerEnergy = Number(baseStats.ManaPerMagic);
-            this.StaminaPerVitality = Number(baseStats.StaminaPerVitality);
-            this.ToHitFactor = Number(baseStats.ToHitFactor);
-        }
-
-        this.Strength = this.BaseStrength;
-        this.Dexterity = this.BaseDexterity;
-        this.Vitality = this.BaseVitality;
-        this.Energy = this.BaseEnergy;
+    return {
+        Name,
+        Class,
+        Level,
+        DifficultyLevel,
+        BaseStrength,
+        BaseDexterity,
+        BaseVitality,
+        BaseEnergy,
+        BaseLife,
+        BaseMana,
+        BaseStamina,
+        StatPointsPerLevel,
+        LifePerLevel,
+        ManaPerLevel,
+        StaminaPerLevel,
+        LifePerVitality,
+        ManaPerEnergy,
+        StaminaPerVitality,
+        Strength,
+        Dexterity,
+        Vitality,
+        Energy,
+        ToHitFactor
     }
 }

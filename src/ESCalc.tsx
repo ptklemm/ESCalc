@@ -6,7 +6,7 @@ import { Outlet, Link } from "react-router-dom";
 export default function ESCalc() {
     return (
         <div id="ESCalc">
-            <Navbar expand="lg" className="bg-body-tertiary">
+            <Navbar style={{ marginBottom: 10 }} expand="lg" className="bg-body-tertiary">
                 <Container fluid>
                     <Navbar.Brand>ESCalc</Navbar.Brand>
                     <Navbar.Toggle />
