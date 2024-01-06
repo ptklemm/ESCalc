@@ -332,7 +332,7 @@ class ItemCatalog {
     }
 
     SearchForItems(options: ItemSearchOptions) {
-        let results: Item[] | UniqueItem[] = [];
+        let results: Item[] = [];
 
         results = this.GetItemsByCategory(options.category);
 
@@ -352,7 +352,7 @@ class ItemCatalog {
             results = results.filter(item => item.Code.toLowerCase() == options.code.toLowerCase());
         }
 
-        results = this.SortItems(results, options.category);
+        results = this.SortItems(results, options.category) as Item[];
 
         return results;
     }
@@ -656,7 +656,7 @@ class ItemCatalog {
             );
         } else {
             // Special case for properties that do not use stats, like Enhanced Damage
-            FormattedDescription = FormatSpecialPropertyDescription(property.Code, min, max, parameter);
+            FormattedDescription = FormatSpecialPropertyDescription(property.Code, min, max);
         }
 
         return {

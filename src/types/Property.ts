@@ -36,7 +36,7 @@ export interface ItemProperty {
     DescriptionValue: number;
 }
 
-export const FormatSpecialPropertyDescription = (propertyCode: string, min: number, max: number, parameter: string) => {
+export const FormatSpecialPropertyDescription = (propertyCode: string, min: number, max: number) => {
     switch(propertyCode) {
         case "dmg%":
             return `+${min}-${max}% Enhanced Damage`;
