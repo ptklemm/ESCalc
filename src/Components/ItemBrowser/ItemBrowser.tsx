@@ -4,7 +4,6 @@ import Col from 'react-bootstrap/Col';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
 import { ItemCatalogContext, Category } from '../../types/ItemCatalog';
-// import ItemSearch from './ItemSearch';
 import ItemTables from './ItemTables';
 
 export default function ItemBrowser() {
@@ -72,8 +71,47 @@ export default function ItemBrowser() {
                                 { header: "Sorceress Weapons", items: catalog.SorceressWeapons, crumb: "Sorceress" }
                             ]}/>
                         </Tab.Pane>
-                        <Tab.Pane eventKey={Category.UniqueArmor}>Unique Armor</Tab.Pane>
-                        <Tab.Pane eventKey={Category.UniqueWeapons}>Unique Weapons</Tab.Pane>
+                        <Tab.Pane eventKey={Category.UniqueArmor}>
+                            <ItemTables id="UniqueArmor" category={Category.UniqueArmor} tables={[
+                                { header: "Helms", items: catalog.UniqueHelms },
+                                { header: "Circlets", items: catalog.UniqueCirclets },
+                                { header: "Pelts", items: catalog.UniquePelts },
+                                { header: "Primal Helms", items: catalog.UniquePrimalHelms },
+                                { header: "Body Armor", items: catalog.UniqueBodyArmor },
+                                { header: "Robes", items: catalog.UniqueRobes },
+                                { header: "Shields", items: catalog.UniqueShields },
+                                { header: "Shrunken Heads", items: catalog.UniqueShrunkenHeads },
+                                { header: "Auric Shields", items: catalog.UniqueAuricShields },
+                                { header: "Gloves", items: catalog.UniqueGloves },
+                                { header: "Belts", items: catalog.UniqueBelts },
+                                { header: "Boots", items: catalog.UniqueBoots }
+                            ]}/>
+                        </Tab.Pane>
+                        <Tab.Pane eventKey={Category.UniqueWeapons}>
+                            <ItemTables id="UniqueWeapons" category={Category.UniqueWeapons} tables={[
+                                { header: "Axes", items: catalog.UniqueAxes },
+                                { header: "Bows", items: catalog.UniqueBows },
+                                { header: "Crossbows", items: catalog.UniqueCrossbows },
+                                { header: "Daggers", items: catalog.UniqueDaggers },
+                                { header: "Javelins", items: catalog.UniqueJavelins },
+                                { header: "Knuckles", items: catalog.UniqueKnuckles },
+                                { header: "Maces", items: catalog.UniqueMaces },
+                                { header: "Polearms", items: catalog.UniquePolearms },
+                                { header: "Scepters", items: catalog.UniqueScepters },
+                                { header: "Spears", items: catalog.UniqueSpears },
+                                { header: "Staves", items: catalog.UniqueStaves },
+                                { header: "Swords", items: catalog.UniqueSwords },
+                                { header: "Throwing Weapons", items: catalog.UniqueThrowingWeapons, crumb: "Throwing" },
+                                { header: "Wands", items: catalog.UniqueWands },
+                                { header: "Amazon Weapons", items: catalog.UniqueAmazonWeapons, crumb: "Amazon" },
+                                { header: "Assassin Weapons", items: catalog.UniqueAssassinWeapons, crumb: "Assassin" },
+                                { header: "Barbarian Weapons", items: catalog.UniqueBarbarianWeapons, crumb: "Barbarian" },
+                                { header: "Druid Weapons", items: catalog.UniqueDruidWeapons, crumb: "Druid" },
+                                { header: "Necromancer Weapons", items: catalog.UniqueNecromancerWeapons, crumb: "Necromancer" },
+                                { header: "Paladin Weapons", items: catalog.UniquePaladinWeapons, crumb: "Paladin" },
+                                { header: "Sorceress Weapons", items: catalog.UniqueSorceressWeapons, crumb: "Sorceress" }
+                            ]}/>
+                        </Tab.Pane>
                         <Tab.Pane eventKey={Category.Sets}>Sets</Tab.Pane>
                         <Tab.Pane eventKey={Category.Gems}>Gems/Runes</Tab.Pane>
                         <Tab.Pane eventKey={Category.Runewords}>Runewords</Tab.Pane>

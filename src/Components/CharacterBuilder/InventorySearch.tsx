@@ -14,24 +14,24 @@ import {
     changeSlotType,
     changeCharacterClass,
     changeRequiredLevel
-} from '../../redux/itemSearchReducer.ts';
-import { ItemCatalogContext, Category, CATEGORY_OPTIONS } from '../../types/ItemCatalog';
-import { Item } from '../../types/Item';
-import { CharacterClass, CLASS_OPTIONS } from '../../types/Character';
-import { SLOT_TYPE_OPTIONS, SlotType } from '../../types/Inventory';
-import { HorizontalInput, HorizontalSelect } from './FormComponents';
+} from '../../redux/inventorySearchReducer.ts';
+import { ItemCatalogContext, Category, CATEGORY_OPTIONS } from '../../types/ItemCatalog.ts';
+import { Item } from '../../types/Item.ts';
+import { CharacterClass, CLASS_OPTIONS } from '../../types/Character.ts';
+import { SLOT_TYPE_OPTIONS, SlotType } from '../../types/Inventory.ts';
+import { HorizontalInput, HorizontalSelect } from '../shared/FormComponents.tsx';
 
-interface ItemSearchProps {
+interface InventorySearchProps {
     calledFromInventory?: boolean;
     onItemSelected?: (item: Item) => void;
 }
 
-export default function ItemSearch({ calledFromInventory, onItemSelected }: ItemSearchProps) {
+export default function InventorySearch({ calledFromInventory, onItemSelected }: InventorySearchProps) {
     const dispatch = useAppDispatch();
 
     const catalog = useContext(ItemCatalogContext);
 
-    const options = useAppSelector(state => state.itemSearch);
+    const options = useAppSelector(state => state.inventorySearch);
 
     const [results, setResults] = useState<Item[]>([]);
 
@@ -88,7 +88,7 @@ export default function ItemSearch({ calledFromInventory, onItemSelected }: Item
     }, [calledFromInventory, options, catalog]);
 
     return (
-        <Form id="ItemSearch">
+        <Form id="InventorySearch">
             <Row style={{ marginBottom: 20 }}>
                 <Col md={3}>
                     <HorizontalSelect 

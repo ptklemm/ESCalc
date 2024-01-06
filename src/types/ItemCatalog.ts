@@ -196,22 +196,62 @@ class ItemCatalog {
     //#endregion
 
     //#region Unique Item Getters
-    // get UniqueItems() {return this.uniques}
+    get UniqueItems() {return this.uniques}
+
+    get UniqueArmor() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.AnyArmor))}
+    get UniqueHelms() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Helm, [ItemType.Circlet, ItemType.Pelt, ItemType.PrimalHelm]))}
+    get UniqueCirclets() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Circlet))}
+    get UniquePelts() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Pelt))}
+    get UniquePrimalHelms() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.PrimalHelm))}
+    get UniqueBodyArmor() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Armor, Robes))}
+    get UniqueRobes() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseTypeGroup(this.uniques, Robes))}
+    get UniqueShields() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Shield))}
+    get UniqueShrunkenHeads() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.VoodooHeads))}
+    get UniqueAuricShields() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.AuricShields))}
+    get UniqueGloves() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Gloves))}
+    get UniqueBelts() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Belt))}
+    get UniqueBoots() {return this.SortUniqueArmor(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Boots))}
+
+    get UniqueWeapons() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Weapon))}
+    get UniqueAxes() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Axe))}
+    get UniqueBows() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Bow))}
+    get UniqueCrossbows() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Crossbow))}
+    get UniqueDaggers() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Knife))}
+    get UniqueJavelins() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Javelin))}
+    get UniqueKnuckles() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Knuckle))}
+    get UniqueMaces() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseTypeGroup(this.uniques, Maces))}
+    get UniquePolearms() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Polearm))}
+    get UniqueScepters() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Scepter))}
+    get UniqueSpears() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Spear))}
+    get UniqueStaves() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Staff, SorceressWeapons))}
+    get UniqueSwords() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Sword))}
+    get UniqueThrowingWeapons() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseTypeGroup(this.uniques, ThrowingWeapons))}
+    get UniqueWands() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.Wand))}
+    get UniqueAmazonWeapons() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseTypeGroup(this.uniques, AmazonWeapons))}
+    get UniqueAssassinWeapons() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseTypeGroup(this.uniques, AssassinWeapons))}
+    get UniqueBarbarianWeapons() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.BarbarianJavs))}
+    get UniqueDruidWeapons() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.DruidClub))}
+    get UniqueNecromancerWeapons() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseTypeGroup(this.uniques, NecromancerWeapons))}
+    get UniquePaladinWeapons() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseType(this.uniques, ItemType.PaladinSword))}
+    get UniqueSorceressWeapons() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseTypeGroup(this.uniques, SorceressWeapons))}
     //#endregion
 
-    //#region Base Item Methods
-    private SortItems(items: Item[], category: Category) {
+    private SortItems(items: Item[] | UniqueItem[], category: Category) {
         switch (category) {
             case Category.Miscellaneous:
                 return _(items as Item[]).sortBy(item => item.QualityLevel).value();
             case Category.Armor:
             case Category.Weapons:
                 return _(items as Item[]).sortBy(item => item.QualityLevel).sortBy(item => item.Tier).uniqBy(item => item.DisplayName).value();
+            case Category.UniqueArmor:
+            case Category.UniqueWeapons:
+                return _(items as UniqueItem[]).sortBy(item => item.QualityLevelUnique).sortBy(item => item.BaseItem?.Tier).uniqBy(item => item.Name).value();
             default:
                 return items;
         }
     }
 
+    //#region Base Item Methods
     public SortMisc(misc: Item[]) {
         return this.SortItems(misc, Category.Miscellaneous);
     }
@@ -292,7 +332,7 @@ class ItemCatalog {
     }
 
     SearchForItems(options: ItemSearchOptions) {
-        let results: Item[] = [];
+        let results: Item[] | UniqueItem[] = [];
 
         results = this.GetItemsByCategory(options.category);
 
@@ -325,8 +365,28 @@ class ItemCatalog {
     //#endregion
 
     //#region Unique Item Methods
-    GetUniqueItemsByBaseType(uniqueItems: UniqueItem[], include: ItemType) {
-        return uniqueItems.filter(unique => unique.BaseItem?.TypeCodes.includes(include));
+    GetUniqueItemsByBaseType(uniqueItems: UniqueItem[], include: ItemType | ItemType[], exclude?: ItemType | ItemType[]) {
+        let result;
+
+        if (include instanceof Array) {
+            result = uniqueItems.filter(unique => include.every(val => unique.BaseItem?.TypeCodes.includes(val)));
+        } else {
+            result = uniqueItems.filter(unique => unique.BaseItem?.TypeCodes.includes(include));
+        }
+
+        if (exclude) {
+            if (exclude instanceof Array) {
+                result = result.filter(unique => exclude.every(val => !unique.BaseItem?.TypeCodes.includes(val)));
+            } else {
+                result = result.filter(unique => !unique.BaseItem?.TypeCodes.includes(exclude));
+            }
+        }
+
+        return result;
+    }
+
+    GetUniqueItemsByBaseTypeGroup(uniqueItems: UniqueItem[], include: ItemType[]) {
+        return uniqueItems.filter(unique => unique.BaseItem ? include.includes(unique.BaseItem.Type) : false);
     }
 
     GetUniqueItemByName(name: string) {
@@ -335,18 +395,16 @@ class ItemCatalog {
     }
 
     public SortUniqueMisc(uniques: UniqueItem[]) {
-        // return this.SortItems(uniques, Category.UniqueMiscellaneous) as UniqueItem[];
+        return this.SortItems(uniques, Category.UniqueMiscellaneous);
         console.log(uniques);
     }
 
     public SortUniqueArmor(uniques: UniqueItem[]) {
-        // return this.SortItems(uniques, Category.UniqueArmor) as UniqueItem[];
-        console.log(uniques);
+        return this.SortItems(uniques, Category.UniqueArmor) as UniqueItem[];
     }
 
     public SortUniqueWeapons(uniques: UniqueItem[]) {
-        // return this.SortItems(uniques, Category.UniqueWeapons) as UniqueItem[];
-        console.log(uniques);
+        return this.SortItems(uniques, Category.UniqueWeapons) as UniqueItem[];
     }
     //#endregion
 
@@ -620,8 +678,8 @@ class ItemCatalog {
         const BaseItem = this.GetItemByCode(uniqueItemData.code);
         const Name = strings[uniqueItemData.index as keyof typeof strings];
         const CarryOne = Boolean(Number(uniqueItemData.carry1));
-        const QualityLevelUnique = Number(uniqueItemData.lvl);
-        const RequiredLevelUnique = Number(uniqueItemData['lvl req']);
+        const QualityLevelUnique = ToNumber(uniqueItemData.lvl);
+        const RequiredLevelUnique = ToNumber(uniqueItemData['lvl req']);
         const Properties: ItemProperty[] = [];
 
         for (let i = 1; i < 13; i++) {

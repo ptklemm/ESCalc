@@ -1,13 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import characterReducer from './characterReducer';
 import inventoryReducer from './inventoryReducer';
-import itemSearchReducer from './itemSearchReducer';
+import inventorySearchReducer from './inventorySearchReducer';
 
 export const store = configureStore({
     reducer: {
         character: characterReducer,
         inventory: inventoryReducer,
-        itemSearch: itemSearchReducer
+        inventorySearch: inventorySearchReducer
     }
 });
 

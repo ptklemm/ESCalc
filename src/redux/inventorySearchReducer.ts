@@ -3,8 +3,8 @@ import { Category, DEFAULT_ITEM_SEARCH_OPTIONS } from '../types/ItemCatalog';
 import { SlotType } from '../types/Inventory';
 import { CharacterClass } from '../types/Character';
 
-export const itemSearchSlice = createSlice({
-    name: 'itemSearch',
+export const inventorySearchSlice = createSlice({
+    name: 'inventorySearch',
     initialState: DEFAULT_ITEM_SEARCH_OPTIONS,
     reducers: {
         resetToDefault: () => DEFAULT_ITEM_SEARCH_OPTIONS,
@@ -25,6 +25,6 @@ export const {
     changeSlotType,
     changeCharacterClass,
     changeRequiredLevel
-} = itemSearchSlice.actions;
+} = inventorySearchSlice.actions;
 
-export default itemSearchSlice.reducer;
+export default inventorySearchSlice.reducer;

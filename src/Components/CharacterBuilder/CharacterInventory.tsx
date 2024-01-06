@@ -10,12 +10,12 @@ import {
     changeCategory,
     changeSlotType,
     changeCharacterClass
-} from '../../redux/itemSearchReducer.ts';
+} from '../../redux/inventorySearchReducer.ts';
+import { Character } from '../../types/Character.ts';
+import { Inventory, Slot, GetSlotType } from '../../types/Inventory.ts';
 import { Category } from '../../types/ItemCatalog.ts';
 import { Item } from '../../types/Item.ts';
-import { Inventory, Slot, GetSlotType } from '../../types/Inventory.ts';
-import ItemSearch from '../shared/ItemSearch.tsx';
-import { Character } from '../../types/Character.ts';
+import ItemSearch from './InventorySearch.tsx';
 
 interface ItemDisplayProps {
     item: Item;

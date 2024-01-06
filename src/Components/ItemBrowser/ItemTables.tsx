@@ -1,15 +1,18 @@
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table';
-import { Item } from '../../types/Item';
+import { Item, UniqueItem } from '../../types/Item';
+import { ItemProperty } from '../../types/Property';
 import { Category } from '../../types/ItemCatalog';
 
 type TableProps = {
     header: string; 
-    items: Item[]; 
+    items: Item[] | UniqueItem[]; 
     crumb?: string;
 }
 
-function ItemTablesBreadcrumb({ tables }: { tables: TableProps[]}) {
+const ItemTablesBreadcrumb = ({ tables }: { tables: TableProps[]}) => {
     return (
         <Breadcrumb>
             {tables.map(table => <Breadcrumb.Item key={table.header} href={`#${table.header}`}>{table.crumb || table.header}</Breadcrumb.Item>)}
@@ -17,12 +20,14 @@ function ItemTablesBreadcrumb({ tables }: { tables: TableProps[]}) {
     );
 }
 
-function ArmorTable(props: { items: Item[], header: string }) {
+interface EquipmentTableProps { items: Item[], header: string }
+
+const ArmorTable = ({ items, header}: EquipmentTableProps) => {
     return (
-        <Table style={{textAlign: 'center'}} id={props.header} bordered hover size="sm">
+        <Table style={{textAlign: 'center'}} id={header} bordered hover size="sm">
             <thead>
                 <tr>
-                    <th colSpan={15}>{props.header}</th>
+                    <th colSpan={15}>{header}</th>
                 </tr>
                 <tr>
                     <th>Index</th>
@@ -43,7 +48,7 @@ function ArmorTable(props: { items: Item[], header: string }) {
                 </tr>
             </thead>
             <tbody>
-                {props.items.map((item, index) => {
+                {items.map((item, index) => {
                     return (
                         <tr key={item.Code}>
                             <td>{index}</td>
@@ -69,12 +74,12 @@ function ArmorTable(props: { items: Item[], header: string }) {
     );
 }
 
-function WeaponTable(props: { items: Item[], header: string }) {
+const WeaponTable = ({ items, header}: EquipmentTableProps) => {
     return (
-        <Table style={{textAlign: 'center'}} id={props.header} bordered hover size="sm">
+        <Table style={{textAlign: 'center'}} id={header} bordered hover size="sm">
             <thead>
                 <tr>
-                    <th colSpan={16}>{props.header}</th>
+                    <th colSpan={16}>{header}</th>
                 </tr>
                 <tr>
                     <th>Index</th>
@@ -96,7 +101,7 @@ function WeaponTable(props: { items: Item[], header: string }) {
                 </tr>
             </thead>
             <tbody>
-                {props.items.map((item, index) => {
+                {items.map((item, index) => {
                     return (
                         <tr key={item.Code}>
                             <td>{index}</td>
@@ -123,6 +128,50 @@ function WeaponTable(props: { items: Item[], header: string }) {
     );
 }
 
+const UniqueItemPropertyCell = ({ itemCode, properties }: { itemCode: string | number, properties: ItemProperty[] }) => {
+    return (
+        <td>
+            {properties.map((property, index) => <p key={`${itemCode}-${index}-${property.Stat}`}>{property.FormattedDescription}</p>)}
+        </td>
+    );
+}
+
+const UniqueTable = ({ items, header}: { items: UniqueItem[], header: string }) => {
+    return (
+        <Table style={{textAlign: 'center'}} id={header} bordered hover size="sm">
+            <thead>
+                <tr>
+                    <th colSpan={7}>{header}</th>
+                </tr>
+                <tr>
+                    <th>Index</th>
+                    <th>Code</th>
+                    <th>Tier</th>
+                    <th>Name</th>
+                    <th>QLvl</th>
+                    <th>Req Lvl</th>
+                    <th>Stats</th>
+                </tr>
+            </thead>
+            <tbody>
+                {items.map((item, index) => {
+                    return (
+                        <tr key={index}>
+                            <td>{index}</td>
+                            <td>{item.BaseItem?.Code}</td>
+                            <td>{item.BaseItem?.Tier}</td>
+                            <td>{item.Name}</td>
+                            <td>{item.QualityLevelUnique}</td>
+                            <td>{item.RequiredLevelUnique}</td>
+                            <UniqueItemPropertyCell itemCode={index} properties={item.Properties} />
+                        </tr>
+                    );
+                })}
+            </tbody>
+        </Table>
+    );   
+}
+
 type ItemTablesProps = {
     id: string,
     category: Category,
@@ -133,14 +182,21 @@ export default function ItemTables(props: ItemTablesProps) {
     const { id, category, tables } = props;
     const breadcrumb = <ItemTablesBreadcrumb tables={tables} />
     return (
-        <div id={id}>
-            {tables.map(table =>
-                <div key={table.header} id={table.header}>
-                    {breadcrumb}
-                    {category == Category.Armor && <ArmorTable items={table.items} header={table.header} />}
-                    {category == Category.Weapons && <WeaponTable items={table.items} header={table.header} />}
-                </div>
-            )}
-        </div>
+        <Row>
+            <Col />
+            <Col id={id} md={10}>
+                {tables.map(table =>
+                    <Row key={table.header} id={table.header}>
+                        {breadcrumb}
+                        {category === Category.Armor && <ArmorTable items={table.items as Item[]} header={table.header} />}
+                        {category === Category.Weapons && <WeaponTable items={table.items as Item[]} header={table.header} />}
+                        {category === Category.UniqueArmor && <UniqueTable items={table.items as UniqueItem[]} header={table.header} />}
+                        {category === Category.UniqueWeapons && <UniqueTable items={table.items as UniqueItem[]} header={table.header} />}
+                    </Row>
+                )}
+            </Col>
+            <Col />
+        </Row>
+        
     );
 }
