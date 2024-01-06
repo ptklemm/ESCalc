@@ -1,22 +1,26 @@
 import _ from 'lodash';
 import { createContext } from 'react';
 
+import strings from '../data/json/strings.json';
+import ItemTypes from '../data/json/ItemTypes.json';
 import MiscellaneousJson from '../data/json/Miscellaneous.json';
 import ArmorJson from '../data/json/Armor.json';
 import WeaponJson from '../data/json/Weapons.json';
+import ItemStatJson from '../data/json/ItemStatCost.json';
 import PropertyJson from '../data/json/Properties.json';
-// import UniqueItemJson from '../data/json/UniqueItems.json';
+import UniqueItemJson from '../data/json/UniqueItems.json';
 
 import { ItemData } from './ItemData';
+import { ItemStatCostData } from './ItemStatCostData';
 import { PropertyData } from './PropertyData';
-// import { UniqueItemData } from './UniqueItemData';
+import { UniqueItemData } from './UniqueItemData';
 
-import { Item, NewItem } from './Item';
-import { SlotType, SlotTypeToBodyLocations } from './Inventory';
-import { Property } from './Property';
 import { ItemType } from './ItemType';
-
+import { Stat, Property, ItemProperty, FormatStatDescription } from './Property';
+import { Item, ModifiedBaseItem, UniqueItem, BodyLocation, GemType, ItemTier, PropertiedItemType } from './Item';
 import { CharacterClass } from './Character';
+import { SlotType, SlotTypeToBodyLocations } from './Inventory';
+import { ToNumber } from './utils';
 
 export enum Category {
     Empty = "",
@@ -107,41 +111,45 @@ export const DEFAULT_ITEM_SEARCH_OPTIONS: ItemSearchOptions = {
 }
 
 class ItemCatalog {
-    // private items: Item[];
     private miscellaneous: Item[];
     private armor: Item[];
     private weapons: Item[];
     private properties: Property[];
-    // private uniques: UniqueItem[];
+    private uniques: UniqueItem[];
 
     constructor() {
-        // this.items = [];
         this.miscellaneous = [];
         this.armor = [];
         this.weapons = [];
         this.properties = [];
-        // this.uniques = [];
+        this.uniques = [];
 
         // ToDo: Figure out why Typescript thinks this is an object
         (MiscellaneousJson as ItemData[]).forEach((itemData: ItemData) => {
-            this.miscellaneous.push(NewItem(itemData));
+            this.miscellaneous.push(this.NewItem(itemData));
         });
 
         ArmorJson.forEach((itemData: ItemData) => {
-            this.armor.push(NewItem(itemData));
+            this.armor.push(this.NewItem(itemData));
         });
 
         WeaponJson.forEach((itemData: ItemData) => {
-            this.weapons.push(NewItem(itemData));
+            this.weapons.push(this.NewItem(itemData));
         });
 
-        PropertyJson.forEach((data: PropertyData) => {
-            this.properties.push(new Property(data));
+        // console.log(ItemStatJson[0]);
+
+        PropertyJson.forEach((propertyData: PropertyData) => {
+            this.properties.push(this.NewProperty(propertyData));
         });
 
-        // UniqueItemJson.forEach((data: UniqueItemData) => {
-        //     this.uniques.push(new UniqueItem(this, data));
-        // });
+        UniqueItemJson.forEach((uniqueItemData: UniqueItemData) => {
+            this.uniques.push(this.NewUniqueItem(uniqueItemData));
+        });
+
+        console.log(this.GetPropertyByCode("dmg%"))
+        console.log(this.GetUniqueItemByName("The Fires of Sunlight"));
+        console.log(this.GetUniqueItemByName("The Grandfather"));
     }
 
     get AllItems() {return [ ...this.miscellaneous, ...this.armor, ...this.weapons ]}
@@ -310,35 +318,312 @@ class ItemCatalog {
     }
     //#endregion
 
-    //#region Magic Property Methods
+    //#region Item Property Methods
     GetPropertyByCode(code: string) {
         return this.properties.find(property => property.Code == code);
     }
     //#endregion
 
     //#region Unique Item Methods
-    // GetUniqueItemsByBaseType(uniqueItems: UniqueItem[], include: ItemType) {
-    //     return uniqueItems.filter(unique => unique.BaseItem?.TypeCodes.includes(include));
-    // }
+    GetUniqueItemsByBaseType(uniqueItems: UniqueItem[], include: ItemType) {
+        return uniqueItems.filter(unique => unique.BaseItem?.TypeCodes.includes(include));
+    }
 
-    // GetUniqueItemByName(name: string) {
-    //     return this.uniques.find(unique => unique.Name == name);
-    // }
+    GetUniqueItemByName(name: string) {
+        // return this.uniques.find(unique => unique.Name == name);
+        return this.uniques.findLast(unique => unique.Name == name);
+    }
 
-    // public SortUniqueMisc(uniques: UniqueItem[]) {
-    //     // return this.SortItems(uniques, Category.UniqueMiscellaneous) as UniqueItem[];
-    //     console.log(uniques);
-    // }
+    public SortUniqueMisc(uniques: UniqueItem[]) {
+        // return this.SortItems(uniques, Category.UniqueMiscellaneous) as UniqueItem[];
+        console.log(uniques);
+    }
 
-    // public SortUniqueArmor(uniques: UniqueItem[]) {
-    //     // return this.SortItems(uniques, Category.UniqueArmor) as UniqueItem[];
-    //     console.log(uniques);
-    // }
+    public SortUniqueArmor(uniques: UniqueItem[]) {
+        // return this.SortItems(uniques, Category.UniqueArmor) as UniqueItem[];
+        console.log(uniques);
+    }
 
-    // public SortUniqueWeapons(uniques: UniqueItem[]) {
-    //     // return this.SortItems(uniques, Category.UniqueWeapons) as UniqueItem[];
-    //     console.log(uniques);
-    // }
+    public SortUniqueWeapons(uniques: UniqueItem[]) {
+        // return this.SortItems(uniques, Category.UniqueWeapons) as UniqueItem[];
+        console.log(uniques);
+    }
+    //#endregion
+
+    //#region Factory Methods
+    private recurseItemTypes(codeList: ItemType[], types: any[], codeToFind: ItemType): any {
+        const codeToAdd = types.find(itemType => itemType.Code == codeToFind);
+    
+        if (codeToAdd && !codeList.includes(codeToAdd.Code)) {
+            codeList.push(codeToAdd.Code);
+    
+            if (codeToAdd.Equiv1) {
+                this.recurseItemTypes(codeList, types, codeToAdd.Equiv1);
+            }
+    
+            if (codeToAdd.Equiv2) {
+                this.recurseItemTypes(codeList, types, codeToAdd.Equiv2);
+            }
+        }
+    
+        return codeToAdd;
+    }
+
+    NewItem(itemData: ItemData): Item {
+        const Code = itemData.code;
+        const Type = itemData.type as ItemType;
+        const Type2 = itemData.type2 as ItemType;
+        const TypeCodes: ItemType[] = [];
+        const itemType = this.recurseItemTypes(TypeCodes, ItemTypes, Type);
+        const IsWearable = Boolean(ToNumber(itemType?.Body));
+        const BodyLocations: BodyLocation[] = [];
+        if (IsWearable) {
+            BodyLocations.push(itemType!.BodyLoc1);
+            BodyLocations.push(itemType!.BodyLoc2);
+        }
+        const StaffMods = itemType?.StaffMods;
+        const ClassRestriction = itemType?.Class;
+        const Name = itemData.name;
+        const DisplayName = strings[itemData.namestr as keyof typeof strings] || Name;
+        const QualityLevel = ToNumber(itemData.level);
+        const AutoPrefix = itemData['auto prefix'];
+        const IsIndestructible = Boolean(ToNumber(itemData.nodurability));
+        const Speed = ToNumber(itemData.speed);
+        const RequiredLevel = ToNumber(itemData.levelreq);
+        const IsInsertable = Boolean(ToNumber(itemType?.Gem as string)); 
+        const IsSocketable = Boolean(ToNumber(itemData.hasinv));
+        const MaxSockets = ToNumber(itemData.gemsockets);
+        const SocketType = GemType[ToNumber(itemData.gemapplytype) as keyof typeof GemType];
+        const DamageMin = ToNumber(itemData.mindam);
+        const DamageMax = ToNumber(itemData.maxdam);
+    
+        // Equipment Properties
+        const CodeNormal = itemData.normcode;
+        const CodeExceptional = itemData.ubercode;
+        const CodeElite = itemData.ultracode;
+    
+        let Tier: ItemTier;
+        switch (Code) {
+            case CodeExceptional:
+                Tier = ItemTier.Exceptional;
+                break;
+            case CodeElite:
+                Tier = ItemTier.Elite;
+                break;
+            case CodeNormal:
+            default:
+                Tier = ItemTier.Normal;
+                break;
+        }
+    
+        const MagicLevel = ToNumber(itemData['magic lvl']);
+        const Durability = ToNumber(itemData.durability);
+        const RequiredStrength = ToNumber(itemData.reqstr);
+        const StrengthBonus = ToNumber(itemData.StrBonus);
+        const DexterityBonus = ToNumber(itemData.DexBonus);
+    
+        // Armor Properties
+        const DefenseMin = ToNumber(itemData.minac);
+        const DefenseMax = ToNumber(itemData.maxac);
+        const ChanceToBlock = ToNumber(itemData.block);
+    
+        // Weapon Properties
+        const RequiredDexterity = ToNumber(itemData.reqdex);
+        const WeaponClass1H = itemData.wclass;
+        const WeaponClass2H = itemData['2handedwclass'];
+        const Is2H = Boolean(ToNumber(itemData['2handed']));
+        const IsDualWieldable = Boolean(ToNumber(itemData['1or2handed']));
+        const DamageMin2H = ToNumber(itemData['2handmindam']);
+        const DamageMax2H = ToNumber(itemData['2handmaxdam']);
+        const Range = ToNumber(itemData.rangeadder);
+    
+        return {
+            DisplayName,
+            Name,
+            Code,
+            Type,
+            Type2,
+            TypeCodes,
+            QualityLevel,
+            RequiredLevel,
+            IsIndestructible,
+            IsWearable,
+            BodyLocations,
+            AutoPrefix,
+            StaffMods,
+            ClassRestriction,
+            Speed,
+            DamageMin,
+            DamageMax,
+            IsInsertable,
+            IsSocketable,
+            MaxSockets,
+            SocketType,
+            CodeNormal,
+            CodeExceptional,
+            CodeElite,
+            Tier,
+            MagicLevel,
+            Durability,
+            RequiredStrength,
+            StrengthBonus,
+            DexterityBonus,
+            DefenseMin,
+            DefenseMax,
+            ChanceToBlock,
+            RequiredDexterity,
+            WeaponClass1H,
+            WeaponClass2H,
+            Is2H,
+            IsDualWieldable,
+            DamageMin2H,
+            DamageMax2H,
+            Range
+        }
+    }
+    
+    NewModifiedBaseItem(baseItem: Item, _properties: ItemProperty[], qLvl?: number, reqLvl?: number): ModifiedBaseItem {
+        const QualityLevel = qLvl || baseItem.QualityLevel;
+        const RequiredLevel = reqLvl || baseItem.RequiredLevel;
+
+        return {
+            QualityLevel,
+            RequiredLevel
+        }
+    }
+
+    NewStat(propertyData: PropertyData, i: number): Stat | undefined {
+        const Code = propertyData[`stat${i}` as keyof PropertyData];
+
+        let DescriptionFunction = 0;
+        let DescriptionValue = 0;
+        let Description1 = "";
+        let Description2 = "";
+        let DescriptionPriority = 0;
+
+        const itemStat = ItemStatJson.find((item_stat: ItemStatCostData) => item_stat.Stat === Code);
+
+        if (itemStat) {
+            DescriptionFunction = ToNumber(itemStat.descfunc);
+            DescriptionValue = ToNumber(itemStat.descval);
+
+            if (itemStat.descstrpos.length) {
+                Description1 = strings[itemStat.descstrpos as keyof typeof strings];
+            }
+            
+            if (itemStat.descstr2.length) {
+                Description2 = strings[itemStat.descstr2 as keyof typeof strings];
+            }
+
+            DescriptionPriority = ToNumber(itemStat.descpriority);
+        }
+
+        const Function = ToNumber(propertyData[`func${i}` as keyof PropertyData]);
+        const Set = propertyData[`set${i}` as keyof PropertyData];
+        const Value =propertyData[`val${i}` as keyof PropertyData];
+
+        if (Code.length) {
+            return {
+                Code,
+                DescriptionFunction,
+                DescriptionValue,
+                Description1,
+                Description2,
+                DescriptionPriority,
+                Function,
+                Set,
+                Value
+            }
+        }
+    }
+
+    NewProperty(propertyData: PropertyData): Property {
+        const Code = propertyData.code;
+        const IsActive = Boolean(propertyData["*done"]);
+        const Description = propertyData["*desc"];
+        const DescriptionParameter = propertyData["*param"];
+        const DescriptionMin = propertyData["*min"];
+        const DescriptionMax = propertyData["*max"];
+        const Notes = propertyData["*notes"];
+
+        const Stats: Stat[] = [];
+        for (let i = 1; i < 8; i++) {
+            const stat = this.NewStat(propertyData, i);
+
+            if (stat) {
+                Stats.push(stat);
+            }
+        }
+
+        return {
+            Code,
+            IsActive,
+            Description,
+            DescriptionParameter,
+            DescriptionMin,
+            DescriptionMax,
+            Notes,
+            Stats
+        }
+    }
+
+    NewItemProperty(property: Property, stat: Stat, min: number, max: number, parameter: string,): ItemProperty {
+        return {
+            Property: property.Code,
+            Stat: stat.Code,
+            Function: stat.Function,
+            Min: min,
+            Max: max,
+            Parameter: parameter,
+            FormattedDescription: FormatStatDescription(stat, min, max, parameter),
+            DescriptionPriority: stat.DescriptionPriority,
+            DescriptionFunction: stat.DescriptionFunction,
+            DescriptionValue: stat.DescriptionValue
+        }
+    }
+
+    NewUniqueItem(uniqueItemData: UniqueItemData): UniqueItem {
+        const propertiedItemType = PropertiedItemType.Unique;
+        const BaseItem = this.GetItemByCode(uniqueItemData.code);
+        const Name = strings[uniqueItemData.index as keyof typeof strings];
+        const CarryOne = Boolean(Number(uniqueItemData.carry1));
+        const QualityLevelUnique = Number(uniqueItemData.lvl);
+        const RequiredLevelUnique = Number(uniqueItemData['lvl req']);
+        const Properties: ItemProperty[] = [];
+
+        for (let i = 1; i < 13; i++) {
+            // ItemProperty flattens Property.Stats
+            const property = this.GetPropertyByCode(uniqueItemData[`prop${i}` as keyof UniqueItemData]);
+            
+            if (property) {
+                for (const stat of property.Stats) {
+                    Properties.push(this.NewItemProperty(
+                        property,
+                        stat,
+                        ToNumber(uniqueItemData[`min${i}` as keyof UniqueItemData]),
+                        ToNumber(uniqueItemData[`max${i}` as keyof UniqueItemData]),
+                        uniqueItemData[`par${i}` as keyof UniqueItemData]
+                    ));
+                }
+            }
+        }
+
+        let ModifiedItem = undefined;
+        if (BaseItem) {
+            ModifiedItem = this.NewModifiedBaseItem(BaseItem, Properties, QualityLevelUnique, RequiredLevelUnique);
+        }
+    
+        return {
+            PropertiedItemType: propertiedItemType,
+            BaseItem,
+            Name,
+            QualityLevelUnique,
+            RequiredLevelUnique,
+            CarryOne,
+            Properties,
+            ModifiedItem
+        }
+    }
     //#endregion
 }
 

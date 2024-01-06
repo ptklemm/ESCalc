@@ -20,7 +20,7 @@ import {
     Difficulty, 
     Attribute 
 } from '../../types/Character.ts';
-import CalculateStats from '../../types/CalculateStats.ts';
+import CalculateStats from './CalculateStats.ts';
 import CharacterInventory from './CharacterInventory.tsx';
 
 interface AttributeInputs {
@@ -200,7 +200,7 @@ export default function CharacterBuilder() {
                         <StatDisplay>Chance to Hit: {stats.ChanceToHit}</StatDisplay>
                         <StatDisplay>Defense: {stats.Defense}</StatDisplay>
                         <StatDisplay>Chance to Be Hit: {stats.ChanceToBeHit}</StatDisplay>
-                        <StatDisplay>Chance to Block: {stats.ChanceToBlock}</StatDisplay>
+                        <StatDisplay>Chance to Block: {stats.ChanceToBlock}%</StatDisplay>
                         <StatDisplay>Fire Resistance: {stats.ResistanceFire}</StatDisplay>
                         <StatDisplay>Cold Resistance: {stats.ResistanceCold}</StatDisplay>
                         <StatDisplay>Lightning Resistance: {stats.ResistanceLightning}</StatDisplay>
