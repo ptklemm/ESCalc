@@ -16,7 +16,7 @@ import { PropertyData } from './PropertyData';
 import { UniqueItemData } from './UniqueItemData';
 
 import { ItemType } from './ItemType';
-import { Stat, Property, ItemProperty, FormatStatDescription } from './Property';
+import { Stat, Property, ItemProperty, FormatSpecialPropertyDescription, FormatStatDescription } from './Property';
 import { Item, ModifiedBaseItem, UniqueItem, BodyLocation, GemType, ItemTier, PropertiedItemType } from './Item';
 import { CharacterClass } from './Character';
 import { SlotType, SlotTypeToBodyLocations } from './Inventory';
@@ -147,9 +147,9 @@ class ItemCatalog {
             this.uniques.push(this.NewUniqueItem(uniqueItemData));
         });
 
-        console.log(this.GetPropertyByCode("dmg%"))
-        console.log(this.GetUniqueItemByName("The Fires of Sunlight"));
-        console.log(this.GetUniqueItemByName("The Grandfather"));
+        // console.log(this.GetPropertyByCode("dmg%"))
+        // console.log(this.GetUniqueItemByName("The Fires of Sunlight"));
+        // console.log(this.GetUniqueItemByName("The Grandfather"));
     }
 
     get AllItems() {return [ ...this.miscellaneous, ...this.armor, ...this.weapons ]}
@@ -567,18 +567,51 @@ class ItemCatalog {
         }
     }
 
-    NewItemProperty(property: Property, stat: Stat, min: number, max: number, parameter: string,): ItemProperty {
+    NewItemProperty(property: Property, stat: Stat | null, min: number, max: number, parameter: string,): ItemProperty {
+        const Property = property.Code;
+        const Min = min;
+        const Max = max;
+        const Parameter = parameter;
+
+        let Stat = property.Code;
+        let Function = 7;
+        let DescriptionPriority = 255;
+        let DescriptionFunction = 4;
+        let DescriptionValue = 1;
+        let FormattedDescription: string | null = stat ? stat.Code : property.Code;
+
+        if (stat) {
+            Stat = stat.Code;
+            Function = stat.Function;
+            DescriptionPriority = stat.DescriptionPriority;
+            DescriptionFunction = stat.DescriptionFunction;
+            DescriptionValue = stat.DescriptionValue;
+            FormattedDescription = FormatStatDescription(
+                stat.DescriptionFunction,
+                stat.DescriptionValue,
+                stat.Description1,
+                stat.Description2,
+                stat.Function,
+                min,
+                max,
+                parameter
+            );
+        } else {
+            // Special case for properties that do not use stats, like Enhanced Damage
+            FormattedDescription = FormatSpecialPropertyDescription(property.Code, min, max, parameter);
+        }
+
         return {
-            Property: property.Code,
-            Stat: stat.Code,
-            Function: stat.Function,
-            Min: min,
-            Max: max,
-            Parameter: parameter,
-            FormattedDescription: FormatStatDescription(stat, min, max, parameter),
-            DescriptionPriority: stat.DescriptionPriority,
-            DescriptionFunction: stat.DescriptionFunction,
-            DescriptionValue: stat.DescriptionValue
+            Property,
+            Stat,
+            Function,
+            Min,
+            Max,
+            Parameter,
+            FormattedDescription,
+            DescriptionPriority,
+            DescriptionFunction,
+            DescriptionValue
         }
     }
 
@@ -596,10 +629,21 @@ class ItemCatalog {
             const property = this.GetPropertyByCode(uniqueItemData[`prop${i}` as keyof UniqueItemData]);
             
             if (property) {
-                for (const stat of property.Stats) {
+                if (property.Stats.length) {
+                    for (const stat of property.Stats) {
+                        Properties.push(this.NewItemProperty(
+                            property,
+                            stat,
+                            ToNumber(uniqueItemData[`min${i}` as keyof UniqueItemData]),
+                            ToNumber(uniqueItemData[`max${i}` as keyof UniqueItemData]),
+                            uniqueItemData[`par${i}` as keyof UniqueItemData]
+                        ));
+                    }
+                } else {
+                    // Special case for properties that have no stats, like Enhanced Damage
                     Properties.push(this.NewItemProperty(
                         property,
-                        stat,
+                        null,
                         ToNumber(uniqueItemData[`min${i}` as keyof UniqueItemData]),
                         ToNumber(uniqueItemData[`max${i}` as keyof UniqueItemData]),
                         uniqueItemData[`par${i}` as keyof UniqueItemData]
