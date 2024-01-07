@@ -6,12 +6,12 @@ export const characterSlice = createSlice({
     initialState: NewCharacter(),
     reducers: {
         changeCharacter: (_character, action: PayloadAction<Character>) => action.payload,
-        changeLevel: (character, action: PayloadAction<number>) => {character.Level = action.payload},
-        changeDifficulty: (character, action: PayloadAction<Difficulty>) => {character.DifficultyLevel = action.payload},
-        changeStrength: (character, action: PayloadAction<number>) => {character.Strength = action.payload},
-        changeDexterity: (character, action: PayloadAction<number>) => {character.Dexterity = action.payload},
-        changeVitality: (character, action: PayloadAction<number>) => {character.Vitality = action.payload},
-        changeEnergy: (character, action: PayloadAction<number>) => {character.Energy = action.payload},
+        changeLevel: (character, action: PayloadAction<number>) => {character.level = action.payload},
+        changeDifficulty: (character, action: PayloadAction<Difficulty>) => {character.difficultyLevel = action.payload},
+        changeStrength: (character, action: PayloadAction<number>) => {character.strength = action.payload},
+        changeDexterity: (character, action: PayloadAction<number>) => {character.dexterity = action.payload},
+        changeVitality: (character, action: PayloadAction<number>) => {character.vitality = action.payload},
+        changeEnergy: (character, action: PayloadAction<number>) => {character.energy = action.payload},
     }
 });
 

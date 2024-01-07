@@ -37,91 +37,61 @@ export enum ClassRestriction {
     Sorceress = "sor"
 }
 
-export interface AbstractItem {
-    Name: string;
+export enum ItemKind {
+    BaseItem,
+    UniqueItem
 }
 
 export interface Item {
     [index: string]: any;
-    // Common Properties
-    DisplayName: string;
-    Name: string;
-    Code: string;
-    Type: ItemType;
-    Type2: ItemType;
-    TypeCodes: ItemType[];
-    QualityLevel: number;
-    RequiredLevel: number;
-    IsIndestructible: boolean;
-    IsWearable: boolean;
-    BodyLocations: BodyLocation[];
-    AutoPrefix: string;
-    StaffMods: string | undefined;
-    ClassRestriction: string | undefined;
-    Speed: number;
-    DamageMin: number;
-    DamageMax: number;
-    IsInsertable: boolean;
-    IsSocketable: boolean;
-    MaxSockets: number;
-    SocketType: string;
+    
+    kind: ItemKind;
+    code: string;
+    name: string;
+    type: ItemType;
+    type2: ItemType;
+    typeCodes: ItemType[];
+    
+    carryOne: boolean;
+    qualityLevel: number;
+    requiredLevel: number;
+    isIndestructible: boolean;
+    isWearable: boolean;
+    bodyLocations: BodyLocation[];
+    autoPrefix: string;
+    staffMods: string | undefined;
+    classRestriction: string | undefined;
+    speed: number;
+    damageMin: number;
+    damageMax: number;
+    isInsertable: boolean;
+    isSocketable: boolean;
+    maxSockets: number;
+    socketType: string;
     // Equipment Properties
-    CodeNormal: string;
-    CodeExceptional: string;
-    CodeElite: string;
-    Tier: ItemTier;
-    MagicLevel: number;
-    Durability: number;
-    RequiredStrength: number;
-    StrengthBonus: number;
-    DexterityBonus: number;
+    codeNormal: string;
+    codeExceptional: string;
+    codeElite: string;
+    tier: ItemTier;
+    magicLevel: number;
+    durability: number;
+    requiredStrength: number;
+    strengthBonus: number;
+    dexterityBonus: number;
     // Armor Properties
-    DefenseMin: number;
-    DefenseMax: number;
-    ChanceToBlock: number;
+    defenseMin: number;
+    defenseMax: number;
+    chanceToBlock: number;
     // Weapon Properties
-    RequiredDexterity: number;
-    WeaponClass1H: string | undefined;
-    WeaponClass2H: string | undefined;
-    Is2H: boolean;
-    IsDualWieldable: boolean;
-    DamageMin2H: number;
-    DamageMax2H: number;
-    Range: number;
-}
+    requiredDexterity: number;
+    weaponClass1H: string | undefined;
+    weaponClass2H: string | undefined;
+    is2H: boolean;
+    isDualWieldable: boolean;
+    damageMin2H: number;
+    damageMax2H: number;
+    range: number;
 
-export interface ModifiedBaseItem {
-    QualityLevel: number;
-    RequiredLevel: number;
-    // IsIndestructible: boolean;
-    // ClassRestriction: string | undefined;
-    // Sockets: number;
-    // Durability: number;
-    // RequiredStrength: number;
-    // RequiredDexterity: number;
-    // DefenseMin: number;
-    // DefenseMax: number;
-    // ChanceToBlock: number;
-    // DamageMin: number;
-    // DamageMax: number;
-    // DamageMin2H: number;
-    // DamageMax2H: number;
-}
-
-export enum PropertiedItemType {
-    Unique
-}
-
-export interface PropertiedItem {
-    PropertiedItemType: PropertiedItemType;
-    BaseItem: Item | undefined;
-    Properties: ItemProperty[];
-    ModifiedItem: ModifiedBaseItem | undefined;
-}
-
-export interface UniqueItem extends PropertiedItem {
-    Name: string;
-    QualityLevelUnique: number;
-    RequiredLevelUnique: number;
-    CarryOne: boolean;
+    properties: ItemProperty[];
+    isModified: boolean;
 }

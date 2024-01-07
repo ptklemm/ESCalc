@@ -23,82 +23,82 @@ function SumOf(inventory: Inventory, stat: string) {
     return sum;
 }
 
-function CalculateInventoryStats(inventory: Inventory) {
-    const DamageMin = inventory.Primary1 ? inventory.Primary1.DamageMin : 0;
-    const DamageMax = inventory.Primary1 ? inventory.Primary1.DamageMax : 0;
-    const Defense = SumOf(inventory, "DefenseMax");
-    const ChanceToBlock = inventory.Secondary1 ? inventory.Secondary1.ChanceToBlock : 0;
+function calculateInventoryStats(inventory: Inventory) {
+    const damageMin = inventory.primary1 ? inventory.primary1.damageMin : 0;
+    const damageMax = inventory.primary1 ? inventory.primary1.damageMax : 0;
+    const defense = SumOf(inventory, "defenseMax");
+    const chanceToBlock = inventory.secondary1 ? inventory.secondary1.chanceToBlock : 0;
 
     return {
-        DamageMin,
-        DamageMax,
-        Defense,
-        ChanceToBlock
+        damageMin,
+        damageMax,
+        defense,
+        chanceToBlock
     }
 }
 
-export default function CalculateStats(character: Character, inventory: Inventory) {
-    const InventoryStats = CalculateInventoryStats(inventory);
+export default function calculateStats(character: Character, inventory: Inventory) {
+    const inventoryStats = calculateInventoryStats(inventory);
     
-    const TotalStatPoints = (character.Level - 1) * character.StatPointsPerLevel;
-    const StatsInStrength = character.Strength - character.BaseStrength;
-    const StatsInDexterity = character.Dexterity - character.BaseDexterity;
-    const StatsInVitality = character.Vitality - character.BaseVitality;
-    const StatsInEnergy = character.Energy - character.BaseEnergy;
-    const StatPointsSpent = StatsInStrength + StatsInDexterity + StatsInVitality + StatsInEnergy;
-    const StatPointsRemaining = TotalStatPoints - StatPointsSpent;
+    const totalStatPoints = (character.level - 1) * character.statPointsPerLevel;
+    const statsInStrength = character.strength - character.baseStrength;
+    const statsInDexterity = character.dexterity - character.baseDexterity;
+    const statsInVitality = character.vitality - character.baseVitality;
+    const statsInEnergy = character.energy - character.baseEnergy;
+    const statPointsSpent = statsInStrength + statsInDexterity + statsInVitality + statsInEnergy;
+    const statPointsRemaining = totalStatPoints - statPointsSpent;
 
-    const Strength = character.Strength;
-    const Dexterity = character.Dexterity;
-    const Vitality = character.Vitality;
-    const Energy = character.Energy;
+    const strength = character.strength;
+    const dexterity = character.dexterity;
+    const vitality = character.vitality;
+    const energy = character.energy;
 
-    const Life = Math.floor(character.BaseLife + (character.LifePerLevel * 0.25 * character.Level) + (character.LifePerVitality * 0.25 * StatsInVitality));
-    const Mana = Math.floor(character.BaseMana + (character.ManaPerLevel * 0.25 * character.Level) + (character.ManaPerEnergy * 0.25 * StatsInEnergy));
-    const Stamina = Math.floor(character.BaseStamina + (character.StaminaPerLevel * 0.25 * character.Level) + (character.StaminaPerVitality * 0.25 * StatsInVitality));
+    const life = Math.floor(character.baseLife + (character.lifePerLevel * 0.25 * character.level) + (character.lifePerVitality * 0.25 * statsInVitality));
+    const mana = Math.floor(character.baseMana + (character.manaPerLevel * 0.25 * character.level) + (character.manaPerEnergy * 0.25 * statsInEnergy));
+    const stamina = Math.floor(character.baseStamina + (character.staminaPerLevel * 0.25 * character.level) + (character.staminaPerVitality * 0.25 * statsInVitality));
 
-    const AttackDamageMin = InventoryStats.DamageMin || 1;
-    const AttackDamageMax = InventoryStats.DamageMax || 2;
+    const attackDamageMin = inventoryStats.damageMin || 1;
+    const attackDamageMax = inventoryStats.damageMax || 2;
 
-    const AttackRating = ((character.Dexterity - 7) * AttackRatingPerDexterity) + character.ToHitFactor;
-    const ChanceToHit = 95;
+    const attackRating = ((character.dexterity - 7) * AttackRatingPerDexterity) + character.toHitFactor;
+    const chanceToHit = 95;
     
-    const Defense = Math.floor(character.Dexterity * DefensePerDexterity) + InventoryStats.Defense;
-    const ChanceToBeHit = 95;
+    const defense = Math.floor(character.dexterity * DefensePerDexterity) + inventoryStats.defense;
+    const chanceToBeHit = 95;
 
     // Total Blocking = [(Blocking * (Dexterity – 15)) / (Character Level * 2)]
-    const ChanceToBlock = Math.floor((InventoryStats.ChanceToBlock * (Dexterity - 15)) / (character.Level * 2));
+    const chanceToBlock = Math.floor((inventoryStats.chanceToBlock * (dexterity - 15)) / (character.level * 2));
 
-    const ResistanceFire = ResistancePenalty[character.DifficultyLevel];
-    const ResistanceCold = ResistancePenalty[character.DifficultyLevel];
-    const ResistanceLightning = ResistancePenalty[character.DifficultyLevel];
-    const ResistancePoison = ResistancePenalty[character.DifficultyLevel];
+    const resistanceFire = ResistancePenalty[character.difficultyLevel];
+    const resistanceCold = ResistancePenalty[character.difficultyLevel];
+    const resistanceLightning = ResistancePenalty[character.difficultyLevel];
+    const resistancePoison = ResistancePenalty[character.difficultyLevel];
 
     return {
-        TotalStatPoints,
-        StatsInStrength,
-        StatsInDexterity,
-        StatsInVitality,
-        StatsInEnergy,
-        StatPointsSpent,
-        StatPointsRemaining,
-        Strength,
-        Dexterity,
-        Vitality,
-        Energy,
-        Life,
-        Mana,
-        Stamina,
-        AttackDamageMin,
-        AttackDamageMax,
-        AttackRating,
-        ChanceToHit,
-        Defense,
-        ChanceToBeHit,
-        ChanceToBlock,
-        ResistanceFire,
-        ResistanceCold,
-        ResistanceLightning,
-        ResistancePoison
+        totalStatPoints,
+        statsInStrength,
+        statsInDexterity,
+        statsInVitality,
+        statsInEnergy,
+        statPointsSpent,
+        statPointsRemaining,
+        strength,
+        dexterity,
+        vitality,
+        energy,
+        life,
+        mana,
+        stamina,
+        attackDamageMin,
+        attackDamageMax,
+        attackRating,
+        chanceToHit,
+        defense,
+        chanceToBeHit,
+        chanceToBlock,
+        resistanceFire,
+        resistanceCold,
+        resistanceLightning,
+        resistancePoison
     }
 }

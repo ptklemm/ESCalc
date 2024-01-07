@@ -20,7 +20,7 @@ import {
     Difficulty, 
     Attribute 
 } from '../../types/Character.ts';
-import CalculateStats from './CalculateStats.ts';
+import calculateStats from './calculateStats.ts';
 import CharacterInventory from './CharacterInventory.tsx';
 
 interface AttributeInputs {
@@ -37,21 +37,21 @@ export default function CharacterBuilder() {
     const character = useAppSelector(state => state.character);
     const inventory = useAppSelector(state => state.inventory);
 
-    const [level, setLevel] = useState(String(character.Level));
+    const [level, setLevel] = useState(String(character.level));
     const [attributes, setAttributes] = useState<AttributeInputs>({
-        strength: String(character.Strength),
-        dexterity: String(character.Dexterity),
-        vitality: String(character.Vitality),
-        energy: String(character.Energy)
+        strength: String(character.strength),
+        dexterity: String(character.dexterity),
+        vitality: String(character.vitality),
+        energy: String(character.energy)
     });
 
     // Calculate new modified stats before render, memoize
-    const stats = useMemo(() => CalculateStats(character, inventory), [character, inventory]);
+    const stats = useMemo(() => calculateStats(character, inventory), [character, inventory]);
 
     const handleClassSelect = (event: ChangeEvent<HTMLSelectElement>) => {
         const value = event.target.value;
 
-        if (!value || value == character.Class)
+        if (!value || value == character.characterClass)
             return;
 
         let newCharacter: Character;
@@ -82,12 +82,12 @@ export default function CharacterBuilder() {
                 newCharacter = NewCharacter();
         }
 
-        setLevel(String(newCharacter.Level));
+        setLevel(String(newCharacter.level));
         setAttributes({
-            strength: String(newCharacter.Strength),
-            dexterity: String(newCharacter.Dexterity),
-            vitality: String(newCharacter.Vitality),
-            energy: String(newCharacter.Energy)
+            strength: String(newCharacter.strength),
+            dexterity: String(newCharacter.dexterity),
+            vitality: String(newCharacter.vitality),
+            energy: String(newCharacter.energy)
         });
         dispatch(changeCharacter(newCharacter));
     }
@@ -96,7 +96,7 @@ export default function CharacterBuilder() {
         let value = Number(event.target.value);
 
         if (!value) {
-            value = character.Level;
+            value = character.level;
         } else if (value < 1) {
             value = 1;
         } else if (value > 99) {
@@ -110,7 +110,7 @@ export default function CharacterBuilder() {
     const handleDifficultyChange = (event: ChangeEvent<HTMLSelectElement>) => {
         const value = event.target.value;
 
-        if (value && value !== character.DifficultyLevel) {
+        if (value && value !== character.difficultyLevel) {
             dispatch(changeDifficulty(Difficulty[value as keyof typeof Difficulty]))
         }
     }
@@ -174,9 +174,9 @@ export default function CharacterBuilder() {
                 <Row>
                     <Form id="CharacterStats">
                         <Row>
-                            <HorizontalSelect id="Class" label="Class" options={CLASS_OPTIONS_MINIMAL} value={character.Class} onChange={handleClassSelect} />
+                            <HorizontalSelect id="Class" label="Class" options={CLASS_OPTIONS_MINIMAL} value={character.characterClass} onChange={handleClassSelect} />
                             <HorizontalInput id="Level" label="Level" value={level} onChange={e => setLevel(e.target.value)} onBlur={handleLevelBlur} />
-                            <HorizontalSelect id="Difficulty" label="Difficulty" options={DIFFICULTY_OPTIONS} value={character.DifficultyLevel} onChange={handleDifficultyChange} />
+                            <HorizontalSelect id="Difficulty" label="Difficulty" options={DIFFICULTY_OPTIONS} value={character.difficultyLevel} onChange={handleDifficultyChange} />
                         </Row>
                         <Row>
                             <HorizontalInput id={Attribute.Strength} label={Attribute.Strength} value={attributes.strength} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
@@ -188,24 +188,24 @@ export default function CharacterBuilder() {
                 </Row>
                 <Row>
                     <div id="CalculatedStats">
-                        <StatDisplay>Points Remaining: {stats.StatPointsRemaining}</StatDisplay>
-                        <StatDisplay>Modified Strength: {stats.Strength}</StatDisplay>
-                        <StatDisplay>Modified Dexterity: {stats.Dexterity}</StatDisplay>
-                        <StatDisplay>Modified Vitality: {stats.Vitality}</StatDisplay>
-                        <StatDisplay>Modified Energy: {stats.Energy}</StatDisplay>
-                        <StatDisplay>Life: {stats.Life}</StatDisplay>
-                        <StatDisplay>Mana: {stats.Mana}</StatDisplay>
-                        <StatDisplay>Stamina: {stats.Stamina}</StatDisplay>
-                        <StatDisplay>Attack Damage: {stats.AttackDamageMin}-{stats.AttackDamageMax}</StatDisplay>
-                        <StatDisplay>Attack Rating: {stats.AttackRating}</StatDisplay>
-                        <StatDisplay>Chance to Hit: {stats.ChanceToHit}</StatDisplay>
-                        <StatDisplay>Defense: {stats.Defense}</StatDisplay>
-                        <StatDisplay>Chance to Be Hit: {stats.ChanceToBeHit}</StatDisplay>
-                        <StatDisplay>Chance to Block: {stats.ChanceToBlock}%</StatDisplay>
-                        <StatDisplay>Fire Resistance: {stats.ResistanceFire}</StatDisplay>
-                        <StatDisplay>Cold Resistance: {stats.ResistanceCold}</StatDisplay>
-                        <StatDisplay>Lightning Resistance: {stats.ResistanceLightning}</StatDisplay>
-                        <StatDisplay>Poison Resistance: {stats.ResistancePoison}</StatDisplay>
+                        <StatDisplay>Points Remaining: {stats.statPointsRemaining}</StatDisplay>
+                        <StatDisplay>Modified Strength: {stats.strength}</StatDisplay>
+                        <StatDisplay>Modified Dexterity: {stats.dexterity}</StatDisplay>
+                        <StatDisplay>Modified Vitality: {stats.vitality}</StatDisplay>
+                        <StatDisplay>Modified Energy: {stats.energy}</StatDisplay>
+                        <StatDisplay>Life: {stats.life}</StatDisplay>
+                        <StatDisplay>Mana: {stats.mana}</StatDisplay>
+                        <StatDisplay>Stamina: {stats.stamina}</StatDisplay>
+                        <StatDisplay>Attack Damage: {stats.attackDamageMin}-{stats.attackDamageMax}</StatDisplay>
+                        <StatDisplay>Attack Rating: {stats.attackRating}</StatDisplay>
+                        <StatDisplay>Chance to Hit: {stats.chanceToHit}</StatDisplay>
+                        <StatDisplay>Defense: {stats.defense}</StatDisplay>
+                        <StatDisplay>Chance to Be Hit: {stats.chanceToBeHit}</StatDisplay>
+                        <StatDisplay>Chance to Block: {stats.chanceToBlock}%</StatDisplay>
+                        <StatDisplay>Fire Resistance: {stats.resistanceFire}</StatDisplay>
+                        <StatDisplay>Cold Resistance: {stats.resistanceCold}</StatDisplay>
+                        <StatDisplay>Lightning Resistance: {stats.resistanceLightning}</StatDisplay>
+                        <StatDisplay>Poison Resistance: {stats.resistancePoison}</StatDisplay>
                     </div>
                 </Row>
             </Col>

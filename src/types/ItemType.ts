@@ -1,4 +1,5 @@
 export enum ItemType {
+    Empty = '',
     TwoHandSwingWeapon = '2hsw',
     AmazonBow1 = 'abow',
     AmazonBow2 = 'pbow',
@@ -67,7 +68,6 @@ export enum ItemType {
     DruidicNecklace = 'damu',
     Elixir = 'elix',
     Emerald = 'geme',
-    Expansion = '',
     ExtraCharm = 'xcha',
     FlawedGem = 'gem1',
     FlawlessGem = 'gem3',

@@ -46,101 +46,101 @@ export enum Attribute {
 }
 
 export interface Character {
-    Name: string;
-    Class: CharacterClass;
-    Level: number;
-    DifficultyLevel: Difficulty;
+    name: string;
+    characterClass: CharacterClass;
+    level: number;
+    difficultyLevel: Difficulty;
     // ToDo: Quest Completion for stats, skills, resists
-    BaseStrength: number;
-    BaseDexterity: number;
-    BaseVitality: number;
-    BaseEnergy: number;
-    BaseLife: number;
-    BaseMana: number;
-    BaseStamina: number;
-    StatPointsPerLevel: number;
-    LifePerLevel: number;
-    ManaPerLevel: number;
-    StaminaPerLevel: number;
-    LifePerVitality: number;
-    ManaPerEnergy: number;
-    StaminaPerVitality: number;
-    Strength: number;
-    Dexterity: number;
-    Vitality: number;
-    Energy: number;
-    ToHitFactor: number;
+    baseStrength: number;
+    baseDexterity: number;
+    baseVitality: number;
+    baseEnergy: number;
+    baseLife: number;
+    baseMana: number;
+    baseStamina: number;
+    statPointsPerLevel: number;
+    lifePerLevel: number;
+    manaPerLevel: number;
+    staminaPerLevel: number;
+    lifePerVitality: number;
+    manaPerEnergy: number;
+    staminaPerVitality: number;
+    strength: number;
+    dexterity: number;
+    vitality: number;
+    energy: number;
+    toHitFactor: number;
 }
 
-export const NewCharacter = (characterClass?: CharacterClass, name?: string): Character => {
-    const Class = characterClass || CharacterClass.Amazon;
-    const Name = name || "";
-    const Level = 1;
-    const DifficultyLevel = Difficulty.Normal;
-    let BaseStrength = 15;
-    let BaseDexterity = 15;
-    let BaseVitality = 15;
-    let BaseEnergy = 15;
-    let BaseLife = BaseVitality;
-    let BaseMana = BaseEnergy;
-    let BaseStamina = 80;
-    let StatPointsPerLevel = 5;
-    let LifePerLevel = 0;
-    let ManaPerLevel = 0;
-    let StaminaPerLevel = 0;
-    let LifePerVitality = 0;
-    let ManaPerEnergy = 0;
-    let StaminaPerVitality = 0;
-    let ToHitFactor = 0;
+export const NewCharacter = (charClass?: CharacterClass, charName?: string): Character => {
+    const name = charName || "";
+    const characterClass = charClass || CharacterClass.Amazon;
+    const level = 1;
+    const difficultyLevel = Difficulty.Normal;
+    let baseStrength = 15;
+    let baseDexterity = 15;
+    let baseVitality = 15;
+    let baseEnergy = 15;
+    let baseLife = baseVitality;
+    let baseMana = baseEnergy;
+    let baseStamina = 80;
+    let statPointsPerLevel = 5;
+    let lifePerLevel = 0;
+    let manaPerLevel = 0;
+    let staminaPerLevel = 0;
+    let lifePerVitality = 0;
+    let manaPerEnergy = 0;
+    let staminaPerVitality = 0;
+    let toHitFactor = 0;
 
-    const baseStats = CharacterStats.find(characterStatData => characterStatData.class == Class);
+    const baseStats = CharacterStats.find(characterStatData => characterStatData.class == characterClass);
 
     if (baseStats) {
-        BaseStrength = Number(baseStats.str);
-        BaseDexterity = Number(baseStats.dex);
-        BaseVitality = Number(baseStats.vit);
-        BaseEnergy = Number(baseStats.int);
-        BaseLife = BaseVitality + Number(baseStats.hpadd);
-        BaseMana = BaseEnergy;
-        BaseStamina = Number(baseStats.stamina);
-        StatPointsPerLevel = Number(baseStats.StatPerLevel);
-        LifePerLevel = Number(baseStats.LifePerLevel);
-        ManaPerLevel = Number(baseStats.ManaPerLevel);
-        StaminaPerLevel = Number(baseStats.StaminaPerLevel);
-        LifePerVitality = Number(baseStats.LifePerVitality);
-        ManaPerEnergy = Number(baseStats.ManaPerMagic);
-        StaminaPerVitality = Number(baseStats.StaminaPerVitality);
-        ToHitFactor = Number(baseStats.ToHitFactor);
+        baseStrength = Number(baseStats.str);
+        baseDexterity = Number(baseStats.dex);
+        baseVitality = Number(baseStats.vit);
+        baseEnergy = Number(baseStats.int);
+        baseLife = baseVitality + Number(baseStats.hpadd);
+        baseMana = baseEnergy;
+        baseStamina = Number(baseStats.stamina);
+        statPointsPerLevel = Number(baseStats.StatPerLevel);
+        lifePerLevel = Number(baseStats.LifePerLevel);
+        manaPerLevel = Number(baseStats.ManaPerLevel);
+        staminaPerLevel = Number(baseStats.StaminaPerLevel);
+        lifePerVitality = Number(baseStats.LifePerVitality);
+        manaPerEnergy = Number(baseStats.ManaPerMagic);
+        staminaPerVitality = Number(baseStats.StaminaPerVitality);
+        toHitFactor = Number(baseStats.ToHitFactor);
     }
 
-    const Strength = BaseStrength;
-    const Dexterity = BaseDexterity;
-    const Vitality = BaseVitality;
-    const Energy = BaseEnergy;
+    const strength = baseStrength;
+    const dexterity = baseDexterity;
+    const vitality = baseVitality;
+    const energy = baseEnergy;
 
     return {
-        Name,
-        Class,
-        Level,
-        DifficultyLevel,
-        BaseStrength,
-        BaseDexterity,
-        BaseVitality,
-        BaseEnergy,
-        BaseLife,
-        BaseMana,
-        BaseStamina,
-        StatPointsPerLevel,
-        LifePerLevel,
-        ManaPerLevel,
-        StaminaPerLevel,
-        LifePerVitality,
-        ManaPerEnergy,
-        StaminaPerVitality,
-        Strength,
-        Dexterity,
-        Vitality,
-        Energy,
-        ToHitFactor
+        name,
+        characterClass,
+        level,
+        difficultyLevel,
+        baseStrength,
+        baseDexterity,
+        baseVitality,
+        baseEnergy,
+        baseLife,
+        baseMana,
+        baseStamina,
+        statPointsPerLevel,
+        lifePerLevel,
+        manaPerLevel,
+        staminaPerLevel,
+        lifePerVitality,
+        manaPerEnergy,
+        staminaPerVitality,
+        strength,
+        dexterity,
+        vitality,
+        energy,
+        toHitFactor
     }
 }

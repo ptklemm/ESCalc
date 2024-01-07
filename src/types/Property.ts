@@ -1,39 +1,39 @@
-import { ToNumber } from "./utils";
+import { toNumber } from "./utils";
 
 export type Stat = {
-    Code: string;
-    DescriptionFunction: number;
-    DescriptionValue: number;
-    Description1: string;
-    Description2: string;
-    DescriptionPriority: number;
-    Function: number;
-    Set: string;
-    Value: string;
+    code: string;
+    descriptionFunction: number;
+    descriptionValue: number;
+    description1: string;
+    description2: string;
+    descriptionPriority: number;
+    function: number;
+    set: string;
+    value: string;
 }
 
 export interface Property {
-    Code: string;
-    IsActive: boolean;
-    Description: string;
-    DescriptionParameter: string;
-    DescriptionMin: string;
-    DescriptionMax: string;
-    Notes: string;
-    Stats: Stat[];
+    code: string;
+    isActive: boolean;
+    description: string;
+    descriptionParameter: string;
+    descriptionMin: string;
+    descriptionMax: string;
+    notes: string;
+    stats: Stat[];
 }
 
 export interface ItemProperty {
-    Property: string; // property.code
-    Stat: string; // stat.Code
-    Function: number;
-    Min: number;
-    Max: number;
-    Parameter: string;
-    FormattedDescription: string | null;
-    DescriptionPriority: number;
-    DescriptionFunction: number;
-    DescriptionValue: number;
+    property: string; // property.code
+    stat: string; // stat.Code
+    function: number;
+    min: number;
+    max: number;
+    parameter: string;
+    formattedDescription: string | null;
+    descriptionPriority: number;
+    descriptionFunction: number;
+    descriptionValue: number;
 }
 
 export const FormatSpecialPropertyDescription = (propertyCode: string, min: number, max: number) => {
@@ -67,8 +67,8 @@ const FormatStatDescription1 = (descFunc: number, desc1: string, desc2: string, 
     min: number, max: number, parameter: string) => {
     // descFunc
     // descVal
-    // Description1
-    // Description2
+    // description1
+    // description2
     // statFunction
 
     switch(descFunc) {
@@ -84,7 +84,7 @@ const FormatStatDescription1 = (descFunc: number, desc1: string, desc2: string, 
             return `${Number(min)*100/128}% ${desc1}`;
         case 6:
             if (statFunc === 17) {
-                const perlvl = ToNumber(parameter) / 8;
+                const perlvl = toNumber(parameter) / 8;
                 const tmin = Math.floor(perlvl);
                 const tmax = Math.floor(perlvl*100);
                 return `(${perlvl}/clvl) +${tmin}-${tmax} ${desc1}` ;
@@ -95,7 +95,7 @@ const FormatStatDescription1 = (descFunc: number, desc1: string, desc2: string, 
             return `${min}% ${desc1} ${desc2}`;
         case 8:
             if (statFunc === 17) {
-                const perlvl = ToNumber(parameter) / 8;
+                const perlvl = toNumber(parameter) / 8;
                 const tmin = Math.floor(perlvl);
                 const tmax = Math.floor(perlvl*100);
                 return `(${perlvl}/clvl) +${tmin}-${tmax}% ${desc1}` ;

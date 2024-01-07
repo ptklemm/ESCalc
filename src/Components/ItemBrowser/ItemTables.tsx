@@ -2,17 +2,12 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table';
-import { Item, UniqueItem } from '../../types/Item';
+import { Item } from '../../types/Item';
 import { ItemProperty } from '../../types/Property';
 import { Category } from '../../types/ItemCatalog';
+import renderItemProperties from '../shared/renderItemProperties';
 
-type TableProps = {
-    header: string; 
-    items: Item[] | UniqueItem[]; 
-    crumb?: string;
-}
-
-const ItemTablesBreadcrumb = ({ tables }: { tables: TableProps[]}) => {
+const ItemTablesBreadcrumb = ({ tables }: { tables: TablesProps[]}) => {
     return (
         <Breadcrumb>
             {tables.map(table => <Breadcrumb.Item key={table.header} href={`#${table.header}`}>{table.crumb || table.header}</Breadcrumb.Item>)}
@@ -20,9 +15,9 @@ const ItemTablesBreadcrumb = ({ tables }: { tables: TableProps[]}) => {
     );
 }
 
-interface EquipmentTableProps { items: Item[], header: string }
+interface TableProps { items: Item[], header: string }
 
-const ArmorTable = ({ items, header}: EquipmentTableProps) => {
+const ArmorTable = ({ items, header}: TableProps) => {
     return (
         <Table style={{textAlign: 'center'}} id={header} bordered hover>
             <thead>
@@ -49,21 +44,21 @@ const ArmorTable = ({ items, header}: EquipmentTableProps) => {
             <tbody>
                 {items.map(item => {
                     return (
-                        <tr key={item.Code}>
-                            <td>{item.Code}</td>
-                            <td>{item.Tier}</td>
-                            <td>{item.DisplayName}</td>
-                            <td>{item.DefenseMin}-{item.DefenseMax}</td>
-                            <td>{item.Durability}</td>
-                            <td>{item.Speed*(-1)}</td>
-                            <td>{item.QualityLevel}</td>
-                            <td>{item.MagicLevel}</td>
-                            <td>{item.RequiredLevel}</td>
-                            <td>{item.RequiredStrength}</td>
-                            <td>{item.ChanceToBlock}</td>
-                            <td>{item.DamageMin}-{item.DamageMax}</td>
-                            <td>{item.MaxSockets}</td>
-                            <td>{item.SocketType}</td>
+                        <tr key={item.code}>
+                            <td>{item.code}</td>
+                            <td>{item.tier}</td>
+                            <td>{item.name}</td>
+                            <td>{item.defenseMin}-{item.defenseMax}</td>
+                            <td>{item.durability}</td>
+                            <td>{item.speed*(-1)}</td>
+                            <td>{item.qualityLevel}</td>
+                            <td>{item.magicLevel}</td>
+                            <td>{item.requiredLevel}</td>
+                            <td>{item.requiredStrength}</td>
+                            <td>{item.chanceToBlock}</td>
+                            <td>{item.damageMin}-{item.damageMax}</td>
+                            <td>{item.maxSockets}</td>
+                            <td>{item.socketType}</td>
                         </tr>
                     );
                 })}
@@ -72,7 +67,7 @@ const ArmorTable = ({ items, header}: EquipmentTableProps) => {
     );
 }
 
-const WeaponTable = ({ items, header}: EquipmentTableProps) => {
+const WeaponTable = ({ items, header}: TableProps) => {
     return (
         <Table style={{textAlign: 'center'}} id={header} bordered hover>
             <thead>
@@ -100,22 +95,22 @@ const WeaponTable = ({ items, header}: EquipmentTableProps) => {
             <tbody>
                 {items.map(item => {
                     return (
-                        <tr key={item.Code}>
-                            <td>{item.Code}</td>
-                            <td>{item.Tier}</td>
-                            <td>{item.DisplayName}</td>
-                            <td>{item.DamageMin}-{item.DamageMax}</td>
-                            <td>{item.DamageMin2H}-{item.DamageMax2H}</td>
-                            <td>{item.Durability}</td>
-                            <td>{item.Range}</td>
-                            <td>{item.Speed*(-1)}</td>
-                            <td>{item.QualityLevel}</td>
-                            <td>{item.RequiredLevel}</td>
-                            <td>{item.RequiredStrength}</td>
-                            <td>{item.RequiredDexterity}</td>
-                            <td>{item.StrengthBonus}/{item.DexterityBonus}</td>
-                            <td>{item.MaxSockets}</td>
-                            <td>{item.SocketType}</td>
+                        <tr key={item.code}>
+                            <td>{item.code}</td>
+                            <td>{item.tier}</td>
+                            <td>{item.name}</td>
+                            <td>{item.damageMin}-{item.damageMax}</td>
+                            <td>{item.damageMin2H}-{item.damageMax2H}</td>
+                            <td>{item.durability}</td>
+                            <td>{item.range}</td>
+                            <td>{item.speed*(-1)}</td>
+                            <td>{item.qualityLevel}</td>
+                            <td>{item.requiredLevel}</td>
+                            <td>{item.requiredStrength}</td>
+                            <td>{item.requiredDexterity}</td>
+                            <td>{item.strengthBonus}/{item.dexterityBonus}</td>
+                            <td>{item.maxSockets}</td>
+                            <td>{item.socketType}</td>
                         </tr>
                     );
                 })}
@@ -124,15 +119,17 @@ const WeaponTable = ({ items, header}: EquipmentTableProps) => {
     );
 }
 
-const UniqueItemPropertyCell = ({ itemCode, properties }: { itemCode: string | number, properties: ItemProperty[] }) => {
+interface PropertiesCellProps { itemCode: string | number, properties: ItemProperty[] }
+
+const PropertiesCell = ({ itemCode, properties }: PropertiesCellProps) => {
     return (
         <td>
-            {properties.sort((a, b) => b.DescriptionPriority - a.DescriptionPriority).map((property, index) => <p key={`${itemCode}-${index}-${property.Stat}`}>{property.FormattedDescription}</p>)}
+            {renderItemProperties(properties, itemCode)}
         </td>
     );
 }
 
-const UniqueTable = ({ items, header}: { items: UniqueItem[], header: string }) => {
+const UniqueTable = ({ items, header}: TableProps) => {
     return (
         <Table style={{textAlign: 'center'}} id={header} bordered hover>
             <thead>
@@ -152,12 +149,12 @@ const UniqueTable = ({ items, header}: { items: UniqueItem[], header: string }) 
                 {items.map((item, index) => {
                     return (
                         <tr key={index}>
-                            <td>{item.BaseItem?.Code}</td>
-                            <td>{item.BaseItem?.Tier}</td>
-                            <td>{item.Name}</td>
-                            <td>{item.QualityLevelUnique}</td>
-                            <td>{item.RequiredLevelUnique}</td>
-                            <UniqueItemPropertyCell itemCode={index} properties={item.Properties} />
+                            <td>{item.code}</td>
+                            <td>{item.tier}</td>
+                            <td>{item.name}</td>
+                            <td>{item.qualityLevel}</td>
+                            <td>{item.requiredLevel}</td>
+                            <PropertiesCell itemCode={index} properties={item.properties} />
                         </tr>
                     );
                 })}
@@ -166,14 +163,20 @@ const UniqueTable = ({ items, header}: { items: UniqueItem[], header: string }) 
     );   
 }
 
-type ItemTablesProps = {
-    id: string,
-    category: Category,
-    tables: TableProps[]
+interface TablesProps {
+    header: string; 
+    items: Item[]; 
+    crumb?: string;
 }
 
-export default function ItemTables(props: ItemTablesProps) {
-    const { id, category, tables } = props;
+
+interface ItemTablesProps {
+    id: string,
+    category: Category,
+    tables: TablesProps[]
+}
+
+export default function ItemTables({ id, category, tables }: ItemTablesProps) {
     const breadcrumb = <ItemTablesBreadcrumb tables={tables} />
     return (
         <Row>
@@ -182,10 +185,10 @@ export default function ItemTables(props: ItemTablesProps) {
                 {tables.map(table =>
                     <Row key={table.header} id={table.header}>
                         {breadcrumb}
-                        {category === Category.Armor && <ArmorTable items={table.items as Item[]} header={table.header} />}
-                        {category === Category.Weapons && <WeaponTable items={table.items as Item[]} header={table.header} />}
-                        {category === Category.UniqueArmor && <UniqueTable items={table.items as UniqueItem[]} header={table.header} />}
-                        {category === Category.UniqueWeapons && <UniqueTable items={table.items as UniqueItem[]} header={table.header} />}
+                        {category === Category.Armor && <ArmorTable items={table.items} header={table.header} />}
+                        {category === Category.Weapons && <WeaponTable items={table.items} header={table.header} />}
+                        {category === Category.UniqueArmor && <UniqueTable items={table.items} header={table.header} />}
+                        {category === Category.UniqueWeapons && <UniqueTable items={table.items} header={table.header} />}
                     </Row>
                 )}
             </Col>
