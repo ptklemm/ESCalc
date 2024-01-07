@@ -39,6 +39,8 @@ export enum Category {
 
 export const CATEGORY_OPTIONS = [
     {label: Category.Empty, value: Category.Empty},
+    {label: "Unique Armor", value: Category.UniqueArmor},
+    {label: "Unique Weapons", value: Category.UniqueWeapons},
     {label: Category.Armor, value: Category.Armor},
     {label: Category.Weapons, value: Category.Weapons}
 ];
@@ -236,6 +238,85 @@ class ItemCatalog {
     get UniqueSorceressWeapons() {return this.SortUniqueWeapons(this.GetUniqueItemsByBaseTypeGroup(this.uniques, SorceressWeapons))}
     //#endregion
 
+    SearchForItems(options: ItemSearchOptions) {
+        switch (options.category) {
+            case Category.UniqueArmor:
+            case Category.UniqueWeapons:
+                return this.SearchForUniqueItems(options);
+            case Category.Armor:
+            case Category.Weapons:
+                return this.SearchForBaseItems(options);
+        }
+    }
+
+    SearchForBaseItems(options: ItemSearchOptions) {
+        let results: Item[] = [];
+
+        results = this.GetItemsByCategory(options.category) as Item[];
+
+        if (options.slotType.length) {
+            results = results.filter(item => SlotTypeToBodyLocations(options.slotType).some(loc => item.BodyLocations.includes(loc)));
+        }
+
+        if (options.characterClass.length) {
+            results = results.filter(item => !item.TypeCodes.includes(ItemType.ClassSpecific) || item.TypeCodes.includes(CharacterClassToItemType(options.characterClass)));
+        }
+
+        if (options.name.length) {
+            results = results.filter(item => item.DisplayName.toLowerCase().includes(options.name.toLowerCase()));
+        }
+
+        if (options.code.length) {
+            results = results.filter(item => item.Code.toLowerCase() == options.code.toLowerCase());
+        }
+
+        results = this.SortItems(results, options.category) as Item[];
+
+        return results;
+    }
+
+    SearchForUniqueItems(options: ItemSearchOptions) {
+        let results: UniqueItem[] = [];
+
+        results = this.GetItemsByCategory(options.category) as UniqueItem[];
+
+        if (options.slotType.length) {
+            results = results.filter(item => SlotTypeToBodyLocations(options.slotType).some(loc => item.BaseItem?.BodyLocations.includes(loc)));
+        }
+
+        if (options.characterClass.length) {
+            results = results.filter(item => !item.BaseItem?.TypeCodes.includes(ItemType.ClassSpecific) || item.BaseItem?.TypeCodes.includes(CharacterClassToItemType(options.characterClass)));
+        }
+
+        if (options.name.length) {
+            results = results.filter(item => item.Name.toLowerCase().includes(options.name.toLowerCase()));
+        }
+
+        if (options.code.length) {
+            results = results.filter(item => item.BaseItem?.Code.toLowerCase() == options.code.toLowerCase());
+        }
+
+        results = this.SortItems(results, options.category) as UniqueItem[];
+
+        return results;
+    }
+
+    GetItemsByCategory(category: Category) {
+        switch (category) {
+            case Category.UniqueArmor:
+                return this.UniqueArmor;
+            case Category.UniqueWeapons:
+                return this.UniqueWeapons;
+            case Category.Armor:
+                return this.Armor;
+            case Category.Weapons:
+                return this.Weapons;
+            case Category.Empty:
+            default:
+                return this.AllItems;
+        }
+    }
+
     private SortItems(items: Item[] | UniqueItem[], category: Category) {
         switch (category) {
             case Category.Miscellaneous:
@@ -317,44 +398,6 @@ class ItemCatalog {
         if (item) {return item;}
         item = this.GetWeaponByCode(code);
         return item;
-    }
-
-    GetItemsByCategory(category: Category) {
-        switch (category) {
-            case Category.Armor:
-                return this.Armor;
-            case Category.Weapons:
-                return this.Weapons;
-            case Category.Empty:
-            default:
-                return this.AllItems;
-        }
-    }
-
-    SearchForItems(options: ItemSearchOptions) {
-        let results: Item[] = [];
-
-        results = this.GetItemsByCategory(options.category);
-
-        if (options.slotType.length) {
-            results = results.filter(item => SlotTypeToBodyLocations(options.slotType).some(loc => item.BodyLocations.includes(loc)));
-        }
-
-        if (options.characterClass.length) {
-            results = results.filter(item => !item.TypeCodes.includes(ItemType.ClassSpecific) || item.TypeCodes.includes(CharacterClassToItemType(options.characterClass)));
-        }
-
-        if (options.name.length) {
-            results = results.filter(item => item.DisplayName.toLowerCase().includes(options.name.toLowerCase()));
-        }
-
-        if (options.code.length) {
-            results = results.filter(item => item.Code.toLowerCase() == options.code.toLowerCase());
-        }
-
-        results = this.SortItems(results, options.category) as Item[];
-
-        return results;
     }
     //#endregion
 

@@ -37,6 +37,10 @@ export enum ClassRestriction {
     Sorceress = "sor"
 }
 
+export interface AbstractItem {
+    Name: string;
+}
+
 export interface Item {
     [index: string]: any;
     // Common Properties

@@ -1,4 +1,4 @@
-import { Item, BodyLocation } from './Item';
+import { Item, UniqueItem, BodyLocation } from './Item';
 
 export enum Slot {
     Empty = "",
@@ -92,20 +92,20 @@ export const SLOT_TYPE_OPTIONS = [
 ];
 
 export interface Inventory {
-    [index: string]: Item | null;
+    [index: string]: Item | UniqueItem | null;
     
-    Primary1:   Item | null;
-    Secondary1: Item | null;
-    Primary2:   Item | null;
-    Secondary2: Item | null;
-    Body:       Item | null;
-    Helm:       Item | null;
-    Gloves:     Item | null;
-    Belt:       Item | null;
-    Boots:      Item | null;
-    Amulet:     Item | null;
-    LeftRing:   Item | null;
-    RightRing:  Item | null;
+    Primary1:   Item | UniqueItem | null;
+    Secondary1: Item | UniqueItem | null;
+    Primary2:   Item | UniqueItem | null;
+    Secondary2: Item | UniqueItem | null;
+    Body:       Item | UniqueItem | null;
+    Helm:       Item | UniqueItem | null;
+    Gloves:     Item | UniqueItem | null;
+    Belt:       Item | UniqueItem | null;
+    Boots:      Item | UniqueItem | null;
+    Amulet:     Item | UniqueItem | null;
+    LeftRing:   Item | UniqueItem | null;
+    RightRing:  Item | UniqueItem | null;
 }
 
 export const NewInventory = (): Inventory => {

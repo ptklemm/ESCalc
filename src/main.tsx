@@ -8,7 +8,8 @@ import ESCalc from './ESCalc.tsx';
 import CharacterBuilder from './Components/CharacterBuilder/CharacterBuilder.tsx';
 import ItemBrowser from './Components/ItemBrowser/ItemBrowser.tsx';
 import ErrorPage from "./Components/ErrorPage.tsx";
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
+import './scss/escalc.scss';
 import { store } from './redux/store.ts';
 import { Provider as ReduxProvider } from 'react-redux';
 

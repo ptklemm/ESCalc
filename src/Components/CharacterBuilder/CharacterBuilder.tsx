@@ -140,12 +140,9 @@ export default function CharacterBuilder() {
     const handleAttributeBlur = (event: FocusEvent<HTMLInputElement>) => {
         const attribute = event.target.id;
         let value = Number(event.target.value);
-        const currentValue = character[attribute as keyof Character] as number;
         const baseValue = character[`Base${attribute}` as keyof Character] as number;
 
-        if (!value) {
-            value = currentValue;
-        } else if (value < currentValue) {
+        if (!value || value < baseValue) {
             value = baseValue;
         } else if ( value > 1023) {
             value = 1023; // max display value for attributes
@@ -176,13 +173,17 @@ export default function CharacterBuilder() {
             <Col md={2}>
                 <Row>
                     <Form id="CharacterStats">
-                        <HorizontalSelect id="Class" label="Class" options={CLASS_OPTIONS_MINIMAL} value={character.Class} onChange={handleClassSelect} />
-                        <HorizontalInput id="Level" label="Level" value={level} onChange={e => setLevel(e.target.value)} onBlur={handleLevelBlur} />
-                        <HorizontalSelect id="Difficulty" label="Difficulty" options={DIFFICULTY_OPTIONS} value={character.DifficultyLevel} onChange={handleDifficultyChange} />
-                        <HorizontalInput id={Attribute.Strength} label={Attribute.Strength} value={attributes.strength} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
-                        <HorizontalInput id={Attribute.Dexterity} label={Attribute.Dexterity} value={attributes.dexterity} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
-                        <HorizontalInput id={Attribute.Vitality} label={Attribute.Vitality} value={attributes.vitality} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
-                        <HorizontalInput id={Attribute.Energy} label={Attribute.Energy} value={attributes.energy} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                        <Row>
+                            <HorizontalSelect id="Class" label="Class" options={CLASS_OPTIONS_MINIMAL} value={character.Class} onChange={handleClassSelect} />
+                            <HorizontalInput id="Level" label="Level" value={level} onChange={e => setLevel(e.target.value)} onBlur={handleLevelBlur} />
+                            <HorizontalSelect id="Difficulty" label="Difficulty" options={DIFFICULTY_OPTIONS} value={character.DifficultyLevel} onChange={handleDifficultyChange} />
+                        </Row>
+                        <Row>
+                            <HorizontalInput id={Attribute.Strength} label={Attribute.Strength} value={attributes.strength} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                            <HorizontalInput id={Attribute.Dexterity} label={Attribute.Dexterity} value={attributes.dexterity} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                            <HorizontalInput id={Attribute.Vitality} label={Attribute.Vitality} value={attributes.vitality} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                            <HorizontalInput id={Attribute.Energy} label={Attribute.Energy} value={attributes.energy} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                        </Row>
                     </Form>
                 </Row>
                 <Row>

@@ -24,13 +24,12 @@ interface EquipmentTableProps { items: Item[], header: string }
 
 const ArmorTable = ({ items, header}: EquipmentTableProps) => {
     return (
-        <Table style={{textAlign: 'center'}} id={header} bordered hover size="sm">
+        <Table style={{textAlign: 'center'}} id={header} bordered hover>
             <thead>
                 <tr>
-                    <th colSpan={15}>{header}</th>
+                    <th colSpan={14}>{header}</th>
                 </tr>
                 <tr>
-                    <th>Index</th>
                     <th>Code</th>
                     <th>Tier</th>
                     <th>Name</th>
@@ -48,10 +47,9 @@ const ArmorTable = ({ items, header}: EquipmentTableProps) => {
                 </tr>
             </thead>
             <tbody>
-                {items.map((item, index) => {
+                {items.map(item => {
                     return (
                         <tr key={item.Code}>
-                            <td>{index}</td>
                             <td>{item.Code}</td>
                             <td>{item.Tier}</td>
                             <td>{item.DisplayName}</td>
@@ -76,13 +74,12 @@ const ArmorTable = ({ items, header}: EquipmentTableProps) => {
 
 const WeaponTable = ({ items, header}: EquipmentTableProps) => {
     return (
-        <Table style={{textAlign: 'center'}} id={header} bordered hover size="sm">
+        <Table style={{textAlign: 'center'}} id={header} bordered hover>
             <thead>
                 <tr>
-                    <th colSpan={16}>{header}</th>
+                    <th colSpan={15}>{header}</th>
                 </tr>
                 <tr>
-                    <th>Index</th>
                     <th>Code</th>
                     <th>Tier</th>
                     <th>Name</th>
@@ -101,10 +98,9 @@ const WeaponTable = ({ items, header}: EquipmentTableProps) => {
                 </tr>
             </thead>
             <tbody>
-                {items.map((item, index) => {
+                {items.map(item => {
                     return (
                         <tr key={item.Code}>
-                            <td>{index}</td>
                             <td>{item.Code}</td>
                             <td>{item.Tier}</td>
                             <td>{item.DisplayName}</td>
@@ -131,20 +127,19 @@ const WeaponTable = ({ items, header}: EquipmentTableProps) => {
 const UniqueItemPropertyCell = ({ itemCode, properties }: { itemCode: string | number, properties: ItemProperty[] }) => {
     return (
         <td>
-            {properties.map((property, index) => <p key={`${itemCode}-${index}-${property.Stat}`}>{property.FormattedDescription}</p>)}
+            {properties.sort((a, b) => b.DescriptionPriority - a.DescriptionPriority).map((property, index) => <p key={`${itemCode}-${index}-${property.Stat}`}>{property.FormattedDescription}</p>)}
         </td>
     );
 }
 
 const UniqueTable = ({ items, header}: { items: UniqueItem[], header: string }) => {
     return (
-        <Table style={{textAlign: 'center'}} id={header} bordered hover size="sm">
+        <Table style={{textAlign: 'center'}} id={header} bordered hover>
             <thead>
                 <tr>
-                    <th colSpan={7}>{header}</th>
+                    <th colSpan={6}>{header}</th>
                 </tr>
                 <tr>
-                    <th>Index</th>
                     <th>Code</th>
                     <th>Tier</th>
                     <th>Name</th>
@@ -157,7 +152,6 @@ const UniqueTable = ({ items, header}: { items: UniqueItem[], header: string }) 
                 {items.map((item, index) => {
                     return (
                         <tr key={index}>
-                            <td>{index}</td>
                             <td>{item.BaseItem?.Code}</td>
                             <td>{item.BaseItem?.Tier}</td>
                             <td>{item.Name}</td>

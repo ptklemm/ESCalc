@@ -39,5 +39,5 @@ export const HorizontalSelect = (props: HorizontalSelectProps) => (
 );
 
 export function StatDisplay(props: PropsWithChildren) {
-    return <Row><Col><small>{props.children}</small></Col></Row>
+    return <p>{props.children}</p>
 }

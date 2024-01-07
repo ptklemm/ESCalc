@@ -1,6 +1,8 @@
 import { Character, Difficulty } from "../../types/Character";
 import { Inventory } from "../../types/Inventory";
 
+// https://www.purediablo.com/strategy/diablo-2-guide-facts-and-formulae-archive
+
 const AttackRatingPerDexterity = 5;
 const DefensePerDexterity = 0.25;
 
@@ -63,7 +65,9 @@ export default function CalculateStats(character: Character, inventory: Inventor
     
     const Defense = Math.floor(character.Dexterity * DefensePerDexterity) + InventoryStats.Defense;
     const ChanceToBeHit = 95;
-    const ChanceToBlock = InventoryStats.ChanceToBlock;
+
+    // Total Blocking = [(Blocking * (Dexterity – 15)) / (Character Level * 2)]
+    const ChanceToBlock = Math.floor((InventoryStats.ChanceToBlock * (Dexterity - 15)) / (character.Level * 2));
 
     const ResistanceFire = ResistancePenalty[character.DifficultyLevel];
     const ResistanceCold = ResistancePenalty[character.DifficultyLevel];

@@ -14,11 +14,11 @@ import {
 import { Character } from '../../types/Character.ts';
 import { Inventory, Slot, GetSlotType } from '../../types/Inventory.ts';
 import { Category } from '../../types/ItemCatalog.ts';
-import { Item } from '../../types/Item.ts';
+import { Item, UniqueItem } from '../../types/Item.ts';
 import ItemSearch from './InventorySearch.tsx';
 
 interface ItemDisplayProps {
-    item: Item;
+    item: Item | UniqueItem;
 }
 
 const ItemDisplay = ({ item }: ItemDisplayProps ) => (
@@ -37,7 +37,7 @@ const ItemDisplay = ({ item }: ItemDisplayProps ) => (
 interface InventorySlotProps {
     slot: Slot;
     category: Category;
-    item: Item | null;
+    item: Item | UniqueItem | null;
     onClick: (category: Category, slot: Slot) => void;
 }
 
@@ -83,7 +83,7 @@ export default function CharacterInventory({ character, inventory }: CharacterIn
         setShowModal(false);
     }
 
-    function selectItem(item: Item) {
+    function selectItem(item: Item | UniqueItem) {
         console.log(item);
         dispatch(changeItem({ slot: searchingForSlot, item}));
         hideSearchModal();
