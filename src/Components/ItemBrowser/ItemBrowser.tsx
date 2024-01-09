@@ -12,7 +12,7 @@ export default function ItemBrowser() {
     return (
         <Tab.Container id="ItemBrowser" defaultActiveKey="Search" transition={false}>
             <Row>
-                <Col md={2}>
+                <Col md={1}>
                     <Nav className="flex-column">
                         <Nav.Link eventKey="Search">Search</Nav.Link>
                         <Nav.Link eventKey={Category.Armor}>Base Armor</Nav.Link>
@@ -34,16 +34,16 @@ export default function ItemBrowser() {
                             <ItemTables id="BaseArmor" category={Category.Armor} tables={[
                                 { header: "Helms", items: catalog.Helms },
                                 { header: "Circlets", items: catalog.Circlets },
-                                { header: "Pelts", items: catalog.Pelts },
-                                { header: "Primal Helms", items: catalog.PrimalHelms },
                                 { header: "Body Armor", items: catalog.BodyArmor },
                                 { header: "Robes", items: catalog.Robes },
                                 { header: "Shields", items: catalog.Shields },
-                                { header: "Shrunken Heads", items: catalog.ShrunkenHeads },
-                                { header: "Auric Shields", items: catalog.AuricShields },
                                 { header: "Gloves", items: catalog.Gloves },
                                 { header: "Belts", items: catalog.Belts },
-                                { header: "Boots", items: catalog.Boots }
+                                { header: "Boots", items: catalog.Boots },
+                                { header: "Primal Helms", items: catalog.PrimalHelms, crumb: "Bar" },
+                                { header: "Pelts", items: catalog.Pelts, crumb: "Dru" },
+                                { header: "Shrunken Heads", items: catalog.ShrunkenHeads, crumb: "Nec" },
+                                { header: "Auric Shields", items: catalog.AuricShields, crumb: "Pal" }
                             ]}/>
                         </Tab.Pane>
                         <Tab.Pane eventKey={Category.Weapons}>
@@ -62,54 +62,54 @@ export default function ItemBrowser() {
                                 { header: "Swords", items: catalog.Swords },
                                 { header: "Throwing Weapons", items: catalog.ThrowingWeapons, crumb: "Throwing" },
                                 { header: "Wands", items: catalog.Wands },
-                                { header: "Amazon Weapons", items: catalog.AmazonWeapons, crumb: "Amazon" },
-                                { header: "Assassin Weapons", items: catalog.AssassinWeapons, crumb: "Assassin" },
-                                { header: "Barbarian Weapons", items: catalog.BarbarianWeapons, crumb: "Barbarian" },
-                                { header: "Druid Weapons", items: catalog.DruidWeapons, crumb: "Druid" },
-                                { header: "Necromancer Weapons", items: catalog.NecromancerWeapons, crumb: "Necromancer" },
-                                { header: "Paladin Weapons", items: catalog.PaladinWeapons, crumb: "Paladin" },
-                                { header: "Sorceress Weapons", items: catalog.SorceressWeapons, crumb: "Sorceress" }
+                                { header: "Amazon Weapons", items: catalog.AmazonWeapons, crumb: "Ama" },
+                                { header: "Assassin Weapons", items: catalog.AssassinWeapons, crumb: "Asn" },
+                                { header: "Barbarian Weapons", items: catalog.BarbarianWeapons, crumb: "Bar" },
+                                { header: "Druid Weapons", items: catalog.DruidWeapons, crumb: "Dru" },
+                                { header: "Necromancer Weapons", items: catalog.NecromancerWeapons, crumb: "Necr" },
+                                { header: "Paladin Weapons", items: catalog.PaladinWeapons, crumb: "Pal" },
+                                { header: "Sorceress Weapons", items: catalog.SorceressWeapons, crumb: "Sor" }
                             ]}/>
                         </Tab.Pane>
                         <Tab.Pane eventKey={Category.UniqueArmor}>
                             <ItemTables id="UniqueArmor" category={Category.UniqueArmor} tables={[
-                                { header: "Helms", items: catalog.UniqueHelms },
-                                { header: "Circlets", items: catalog.UniqueCirclets },
-                                { header: "Pelts", items: catalog.UniquePelts },
-                                { header: "Primal Helms", items: catalog.UniquePrimalHelms },
-                                { header: "Body Armor", items: catalog.UniqueBodyArmor },
-                                { header: "Robes", items: catalog.UniqueRobes },
-                                { header: "Shields", items: catalog.UniqueShields },
-                                { header: "Shrunken Heads", items: catalog.UniqueShrunkenHeads },
-                                { header: "Auric Shields", items: catalog.UniqueAuricShields },
-                                { header: "Gloves", items: catalog.UniqueGloves },
-                                { header: "Belts", items: catalog.UniqueBelts },
-                                { header: "Boots", items: catalog.UniqueBoots }
+                                { header: "Unique Helms", items: catalog.UniqueHelms, crumb: "Helms" },
+                                { header: "Unique Circlets", items: catalog.UniqueCirclets, crumb: "Circlets" },
+                                { header: "Unique Body Armor", items: catalog.UniqueBodyArmor, crumb: "Body Armor" },
+                                { header: "Unique Robes", items: catalog.UniqueRobes, crumb: "Robes" },
+                                { header: "Unique Shields", items: catalog.UniqueShields, crumb: "Shields" },
+                                { header: "Unique Gloves", items: catalog.UniqueGloves, crumb: "Gloves" },
+                                { header: "Unique Belts", items: catalog.UniqueBelts, crumb: "Belts" },
+                                { header: "Unique Boots", items: catalog.UniqueBoots, crumb: "Boots" },
+                                { header: "Unique Primal Helms", items: catalog.UniquePrimalHelms, crumb: "Bar" },
+                                { header: "Unique Pelts", items: catalog.UniquePelts, crumb: "Dru" },
+                                { header: "Unique Shrunken Heads", items: catalog.UniqueShrunkenHeads, crumb: "Nec" },
+                                { header: "Unique Auric Shields", items: catalog.UniqueAuricShields, crumb: "Pal" },
                             ]}/>
                         </Tab.Pane>
                         <Tab.Pane eventKey={Category.UniqueWeapons}>
                             <ItemTables id="UniqueWeapons" category={Category.UniqueWeapons} tables={[
-                                { header: "Axes", items: catalog.UniqueAxes },
-                                { header: "Bows", items: catalog.UniqueBows },
-                                { header: "Crossbows", items: catalog.UniqueCrossbows },
-                                { header: "Daggers", items: catalog.UniqueDaggers },
-                                { header: "Javelins", items: catalog.UniqueJavelins },
-                                { header: "Knuckles", items: catalog.UniqueKnuckles },
-                                { header: "Maces", items: catalog.UniqueMaces },
-                                { header: "Polearms", items: catalog.UniquePolearms },
-                                { header: "Scepters", items: catalog.UniqueScepters },
-                                { header: "Spears", items: catalog.UniqueSpears },
-                                { header: "Staves", items: catalog.UniqueStaves },
-                                { header: "Swords", items: catalog.UniqueSwords },
-                                { header: "Throwing Weapons", items: catalog.UniqueThrowingWeapons, crumb: "Throwing" },
-                                { header: "Wands", items: catalog.UniqueWands },
-                                { header: "Amazon Weapons", items: catalog.UniqueAmazonWeapons, crumb: "Amazon" },
-                                { header: "Assassin Weapons", items: catalog.UniqueAssassinWeapons, crumb: "Assassin" },
-                                { header: "Barbarian Weapons", items: catalog.UniqueBarbarianWeapons, crumb: "Barbarian" },
-                                { header: "Druid Weapons", items: catalog.UniqueDruidWeapons, crumb: "Druid" },
-                                { header: "Necromancer Weapons", items: catalog.UniqueNecromancerWeapons, crumb: "Necromancer" },
-                                { header: "Paladin Weapons", items: catalog.UniquePaladinWeapons, crumb: "Paladin" },
-                                { header: "Sorceress Weapons", items: catalog.UniqueSorceressWeapons, crumb: "Sorceress" }
+                                { header: "Unique Axes", items: catalog.UniqueAxes, crumb: "Axes" },
+                                { header: "Unique Bows", items: catalog.UniqueBows, crumb: "Bows" },
+                                { header: "Unique Crossbows", items: catalog.UniqueCrossbows, crumb: "Crossbows" },
+                                { header: "Unique Daggers", items: catalog.UniqueDaggers, crumb: "Daggers" },
+                                { header: "Unique Javelins", items: catalog.UniqueJavelins, crumb: "Javelins" },
+                                { header: "Unique Knuckles", items: catalog.UniqueKnuckles, crumb: "Knuckles" },
+                                { header: "Unique Maces", items: catalog.UniqueMaces, crumb: "Maces" },
+                                { header: "Unique Polearms", items: catalog.UniquePolearms, crumb: "Polearms" },
+                                { header: "Unique Scepters", items: catalog.UniqueScepters, crumb: "Scepters" },
+                                { header: "Unique Spears", items: catalog.UniqueSpears, crumb: "Spears" },
+                                { header: "Unique Staves", items: catalog.UniqueStaves, crumb: "Staves" },
+                                { header: "Unique Swords", items: catalog.UniqueSwords, crumb: "Swords" },
+                                { header: "Unique Throwing Weapons", items: catalog.UniqueThrowingWeapons, crumb: "Throwing" },
+                                { header: "Unique Wands", items: catalog.UniqueWands, crumb: "Wands" },
+                                { header: "Unique Amazon Weapons", items: catalog.UniqueAmazonWeapons, crumb: "Ama" },
+                                { header: "Unique Assassin Weapons", items: catalog.UniqueAssassinWeapons, crumb: "Asn" },
+                                { header: "Unique Barbarian Weapons", items: catalog.UniqueBarbarianWeapons, crumb: "Bar" },
+                                { header: "Unique Druid Weapons", items: catalog.UniqueDruidWeapons, crumb: "Dru" },
+                                { header: "Unique Necromancer Weapons", items: catalog.UniqueNecromancerWeapons, crumb: "Nec" },
+                                { header: "Unique Paladin Weapons", items: catalog.UniquePaladinWeapons, crumb: "Pal" },
+                                { header: "Unique Sorceress Weapons", items: catalog.UniqueSorceressWeapons, crumb: "Sor" }
                             ]}/>
                         </Tab.Pane>
                         <Tab.Pane eventKey={Category.Sets}>Sets</Tab.Pane>

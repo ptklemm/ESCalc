@@ -2,7 +2,9 @@ import { useState, useCallback } from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
+// import Button from 'react-bootstrap/Button';
+import Nav from 'react-bootstrap/Nav';
+import Tab from 'react-bootstrap/Tab';
 import Modal from 'react-bootstrap/Modal';
 import { useAppDispatch } from '../../redux/hooks.ts';
 import { changeItem } from '../../redux/inventoryReducer.ts';
@@ -14,7 +16,7 @@ import {
 import { Character } from '../../types/Character.ts';
 import { Inventory, Slot, GetSlotType } from '../../types/Inventory.ts';
 import { Category } from '../../types/ItemCatalog.ts';
-import { Item } from '../../types/Item.ts';
+import { Item, ItemKind } from '../../types/Item.ts';
 import ItemSearch from './InventorySearch.tsx';
 import renderItemProperties from '../shared/renderItemProperties.tsx';
 
@@ -49,14 +51,17 @@ const InventorySlot = ({ category, slot, item, onClick }: InventorySlotProps) =>
     }, [category, slot, onClick]);
 
     return (
-        <Card style={{ width: 250, height: 400, textAlign: 'center', verticalAlign: 'center' }}>
-            <Card.Header ><Card.Title>{item ? item.name : slot}</Card.Title></Card.Header>
+        <Card style={{ height: 400, textAlign: 'center', verticalAlign: 'center' }}>
+            <Card.Header style={{ height: 50 }}>
+                <Card.Title onClick={search}>{item ? item.name : slot}</Card.Title>
+                {item?.kind !== ItemKind.BaseItem ? <Card.Subtitle>{item?.baseName}</Card.Subtitle> : null}
+            </Card.Header>
             <Card.Body style={{ overflow: 'auto' }}>
                 {item ? <ItemDisplay item={item} /> : null}
             </Card.Body>
-            <Card.Footer>
+            {/* <Card.Footer>
                 <Button size="sm" onClick={search}>Search</Button>
-            </Card.Footer>
+            </Card.Footer> */}
         </Card>
     );
 }
@@ -99,21 +104,39 @@ export default function CharacterInventory({ character, inventory }: CharacterIn
                     <ItemSearch calledFromInventory onItemSelected={selectItem} />
                 </Modal.Body>
             </Modal>
-            <Row style={{ marginBottom: 50 }}>
-                <Col><InventorySlot slot={Slot.Primary1} category={Category.Weapons} item={inventory[Slot.Primary1]} onClick={showSearchModal}/></Col>
-                <Col><InventorySlot slot={Slot.Secondary1} category={Category.Armor} item={inventory[Slot.Secondary1]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.Body} category={Category.Armor} item={inventory[Slot.Body]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.Helm} category={Category.Armor} item={inventory[Slot.Helm]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.Gloves} category={Category.Armor} item={inventory[Slot.Gloves]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.Belt} category={Category.Armor} item={inventory[Slot.Belt]} onClick={showSearchModal} /></Col>
+            <Row style={{ marginBottom: 20, paddingLeft: 0, paddingRight: 0 }}>
+                <Col md={6}>
+                    <Tab.Container id="WeaponSets" defaultActiveKey="primary">
+                        <Nav variant="tabs">
+                            <Nav.Item><Nav.Link eventKey="primary">Primary</Nav.Link></Nav.Item>
+                            <Nav.Item><Nav.Link eventKey="secondary">Secondary</Nav.Link></Nav.Item>
+                        </Nav>
+                        <Tab.Content>
+                            <Tab.Pane eventKey="primary">
+                                <Row>
+                                    <Col><InventorySlot slot={Slot.Primary1} category={Category.UniqueWeapons} item={inventory[Slot.Primary1]} onClick={showSearchModal}/></Col>
+                                    <Col><InventorySlot slot={Slot.Secondary1} category={Category.UniqueArmor} item={inventory[Slot.Secondary1]} onClick={showSearchModal} /></Col>
+                                </Row>
+                            </Tab.Pane>
+                            <Tab.Pane eventKey="secondary">
+                                <Row>
+                                    <Col><InventorySlot slot={Slot.Primary2} category={Category.UniqueWeapons} item={inventory[Slot.Primary2]} onClick={showSearchModal} /></Col>
+                                    <Col><InventorySlot slot={Slot.Secondary2} category={Category.UniqueArmor} item={inventory[Slot.Secondary2]} onClick={showSearchModal} /></Col>
+                                </Row>
+                            </Tab.Pane>
+                        </Tab.Content>
+                    </Tab.Container>
+                </Col>
+                <Col><InventorySlot slot={Slot.Body} category={Category.UniqueArmor} item={inventory[Slot.Body]} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.Helm} category={Category.UniqueArmor} item={inventory[Slot.Helm]} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.Gloves} category={Category.UniqueArmor} item={inventory[Slot.Gloves]} onClick={showSearchModal} /></Col>
             </Row>
-            <Row>
-                <Col><InventorySlot slot={Slot.Primary2} category={Category.Weapons} item={inventory[Slot.Primary2]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.Secondary2} category={Category.Armor} item={inventory[Slot.Secondary2]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.Boots} category={Category.Armor} item={inventory[Slot.Boots]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.Amulet} category={Category.Armor} item={inventory[Slot.Amulet]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.LeftRing} category={Category.Armor} item={inventory[Slot.LeftRing]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.RightRing} category={Category.Armor} item={inventory[Slot.RightRing]} onClick={showSearchModal} /></Col>
+            <Row style={{ paddingLeft: 0, paddingRight: 0 }}>
+                <Col><InventorySlot slot={Slot.Belt} category={Category.UniqueArmor} item={inventory[Slot.Belt]} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.Boots} category={Category.UniqueArmor} item={inventory[Slot.Boots]} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.Amulet} category={Category.UniqueArmor} item={inventory[Slot.Amulet]} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.LeftRing} category={Category.UniqueArmor} item={inventory[Slot.LeftRing]} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.RightRing} category={Category.UniqueArmor} item={inventory[Slot.RightRing]} onClick={showSearchModal} /></Col>
             </Row>
         </div>
     );

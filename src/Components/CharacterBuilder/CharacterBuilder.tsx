@@ -170,7 +170,7 @@ export default function CharacterBuilder() {
 
     return (
         <Row id="CharacterBuilder">
-            <Col md={2}>
+            <Col md={3}>
                 <Row>
                     <Form id="CharacterStats">
                         <Row>

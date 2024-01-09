@@ -16,7 +16,14 @@ import { PropertyData } from './PropertyData';
 import { UniqueItemData } from './UniqueItemData';
 
 import { ItemType } from './ItemType';
-import { Stat, Property, ItemProperty, FormatSpecialPropertyDescription, FormatStatDescription } from './Property';
+import { 
+    Stat, 
+    Property, 
+    ItemProperty, 
+    GetSpecialPropertyDescriptionPriority,
+    FormatSpecialPropertyDescription, 
+    FormatStatDescription
+} from './Property';
 import { ItemKind, Item, BodyLocation, GemType, ItemTier } from './Item';
 import { CharacterClass } from './Character';
 import { SlotType, SlotTypeToBodyLocations } from './Inventory';
@@ -153,7 +160,7 @@ class ItemCatalog {
         // console.log(this.GetUniqueItemByName("The Grandfather"));
     }
 
-    get AllItems() {return [ ...this.miscellaneous, ...this.armor, ...this.weapons ]}
+    get AllItems() {return [ ...this.miscellaneous, ...this.armor, ...this.weapons, ...this.uniques ]}
 
     //#region Armor Getters
     get Armor() {return this.armor}
@@ -261,6 +268,10 @@ class ItemCatalog {
         results = this.SortItems(results, options.category);
 
         return results;
+    }
+
+    SearchItemsByNameOrCode(searchVal: string) {
+        return this.AllItems.filter(item => item.name?.toLowerCase().includes(searchVal.toLowerCase()) || item.code?.toLowerCase().includes(searchVal.toLowerCase()));
     }
 
     GetItemsByCategory(category: Category) {
@@ -392,6 +403,7 @@ class ItemCatalog {
         const kind = itemKind;
         const code = itemData.code;
         const name = strings[itemData.namestr as keyof typeof strings] || itemData.name;
+        const baseName = name;
         const type = itemData.type as ItemType;
         const type2 = itemData.type2 as ItemType;
         const typeCodes: ItemType[] = [];
@@ -458,6 +470,7 @@ class ItemCatalog {
             kind,
             code,
             name,
+            baseName,
             type,
             type2,
             typeCodes,
@@ -509,6 +522,7 @@ class ItemCatalog {
             return;
 
         const name = strings[uniqueItemData.index as keyof typeof strings];
+        const baseName = baseItem.name;
         const carryOne = Boolean(Number(uniqueItemData.carry1));
         const qualityLevel = toNumber(uniqueItemData.lvl);
         const requiredLevel = toNumber(uniqueItemData['lvl req']);
@@ -547,7 +561,8 @@ class ItemCatalog {
         return { 
             ...baseItem, 
             kind: ItemKind.UniqueItem,
-            name, 
+            name,
+            baseName,
             carryOne, 
             qualityLevel, 
             requiredLevel, 
@@ -633,7 +648,7 @@ class ItemCatalog {
     NewItemProperty(property: Property, stat: Stat | null, min: number, max: number, parameter: string,): ItemProperty {
         let statName = property.code;
         let func = 7;
-        let descriptionPriority = 255;
+        let descriptionPriority = 135;
         let descriptionFunction = 4;
         let descriptionValue = 1;
         let formattedDescription: string | null = stat ? stat.code : property.code;
@@ -645,6 +660,7 @@ class ItemCatalog {
             descriptionFunction = stat.descriptionFunction;
             descriptionValue = stat.descriptionValue;
             formattedDescription = FormatStatDescription(
+                stat.code,
                 stat.descriptionFunction,
                 stat.descriptionValue,
                 stat.description1,
@@ -656,6 +672,7 @@ class ItemCatalog {
             );
         } else {
             // Special case for properties that do not use stats, like Enhanced Damage
+            descriptionPriority = GetSpecialPropertyDescriptionPriority(property.code);
             formattedDescription = FormatSpecialPropertyDescription(property.code, min, max);
         }
 

@@ -181,7 +181,7 @@ export default function ItemTables({ id, category, tables }: ItemTablesProps) {
     return (
         <Row>
             <Col />
-            <Col id={id} md={10}>
+            <Col id={id} md={6}>
                 {tables.map(table =>
                     <Row key={table.header} id={table.header}>
                         {breadcrumb}

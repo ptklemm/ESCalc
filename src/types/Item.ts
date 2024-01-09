@@ -48,6 +48,7 @@ export interface Item {
     kind: ItemKind;
     code: string;
     name: string;
+    baseName: string;
     type: ItemType;
     type2: ItemType;
     typeCodes: ItemType[];

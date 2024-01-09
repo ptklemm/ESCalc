@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Vollkorn&display=swap');
+// @import url('https://fonts.googleapis.com/css2?family=Vollkorn&display=swap');
 
 // 1. Include functions first (so you can manipulate colors, SVGs, calc, etc)
 @import "bootstrap/scss/functions";
@@ -10,9 +10,23 @@ $enable-shadows: true;
 $enable-gradients: true;
 $enable-smooth-scroll: false;
 
+// Spacing
+$spacer: 1rem;
+
+// Grid columns
+$grid-columns: 15;
+$grid-gutter-width: 10px;// 1.0rem;
+
 // Typography
-$font-family-base: 'Vollkorn', serif;
-$font-size-base: 0.85rem;
+$font-family-base: "Arial", sans-serif;
+$font-size-base: 0.8rem;
+
+// Breadcrumbs
+$breadcrumb-font-size: $font-size-base * 0.9;
+
+// Cards
+$card-spacer-y: $spacer * 0.5;
+$card-spacer-x: $spacer * 0.5;
 
 // Paragraphs
 $paragraph-margin-bottom: 0rem;
@@ -53,11 +67,15 @@ $paragraph-margin-bottom: 0rem;
 @import "bootstrap/scss/utilities/api";
 
 // 8. Add additional custom code here
-.table>tbody>tr>td, 
-.table>tbody>tr>th, 
-.table>tfoot>tr>td, 
-.table>tfoot>tr>th, 
-.table>thead>tr>td, 
-.table>thead>tr>th {
+p {
+    font-size: $font-size-sm;
+}
+
+.table > tbody > tr > td, 
+.table > tbody > tr > th, 
+.table > tfoot > tr > td, 
+.table > tfoot > tr > th, 
+.table > thead > tr > td, 
+.table > thead > tr > th {
     vertical-align: middle;
 }

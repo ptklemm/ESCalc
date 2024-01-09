@@ -41,7 +41,7 @@ export default function InventorySearch({ calledFromInventory, onItemSelected }:
     const [colDefs] = useState<ColDef<Item>[]>([
         { field: "code", width: 70 },
         { field: "name", headerName: "Item", width: 200, cellStyle: {textAlign: 'left'} },
-        { field: "qualityLevel", headerName: "QLvl", width: 70 },
+        { field: "qualityLevel", headerName: "QLvl", width: 70, sort: 'desc' },
         { field: "magicLevel", headerName: "Magic Lvl", width: 100 },
         { field: "requiredLevel", headerName: "Req Lvl", width: 100 },
         { field: "requiredStrength", headerName: "Req Str", width: 100 },
@@ -91,7 +91,7 @@ export default function InventorySearch({ calledFromInventory, onItemSelected }:
     return (
         <Form id="InventorySearch">
             <Row style={{ marginBottom: 20 }}>
-                <Col md={3}>
+                <Col md={5}>
                     <HorizontalSelect 
                         id="category" 
                         label="Category" 
