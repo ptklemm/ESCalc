@@ -1,5 +1,23 @@
 import { toNumber } from "./utils";
 
+export enum PropertyCode {
+    AllStats = "all-stats",
+    Strength = "str",
+    Dexterity = "dex",
+    Vitality = "vit",
+    Energy = "enr",
+    Life = "hp",
+    LifePercent = "hp%",
+    Mana = "mana",
+    ManaPercent = "mana%",
+    Defense = "ac",
+    DefenseVsMissile = "ac-miss",
+    DefensePercent = "ac%",
+    DamageResist = "red-dmg%",
+    DamageReduction = "red-dmg",
+    MagicDamageReduction = "red-mag"
+}
+
 export type Stat = {
     code: string;
     descriptionFunction: number;
@@ -23,42 +41,61 @@ export interface Property {
     stats: Stat[];
 }
 
+export interface ItemPropertyDescription {
+    priority: number;
+    text: string | null;
+}
+
 export interface ItemProperty {
-    property: string; // property.code
-    stat: string; // stat.Code
+    code: string; // property.code
     function: number;
     min: number;
     max: number;
     parameter: string;
-    formattedDescription: string | null;
-    descriptionPriority: number;
-    descriptionFunction: number;
-    descriptionValue: number;
+    statCodes: string[]; // stat.Code(s)
+    descriptions: ItemPropertyDescription[]
+}
+
+export enum SpecialProperty {
+    Ethereal = "ethereal",
+    Indestructible = "indestruct",
+    EnhancedDamage = "dmg%",
+    PlusMinimumDamage = "dmg-min",
+    PlusMaximumDamage = "dmg-max",
+    GettingHitFearsEnemy = "fear"
+}
+
+export function NewItemPropertyDescription(property: Property, stat: Stat | null, min: number, max: number, parameter: string): ItemPropertyDescription {
+    const priority = stat ? stat.descriptionPriority : GetSpecialPropertyDescriptionPriority(property.code);
+
+    let text: string | null = null;
+
+    if (stat) {
+        text = FormatStatDescription(stat.code, stat.descriptionFunction, stat.descriptionValue,
+            stat.description1, stat.description2, stat.function, min, max, parameter);
+    } else {
+        text = FormatSpecialPropertyDescription(property.code, min, max);
+    }
+
+    return { priority, text }
 }
 
 export const GetSpecialPropertyDescriptionPriority = (propertyCode: string): number => {
     // Min is 0, max is 255. The higher the number, the higher up in the list it is displayed.
     switch (propertyCode) {
-        case "dmg%":
+        case SpecialProperty.EnhancedDamage:
             return 135;
-        case "dmg-min":
-        case "dmg-max":
-        case "ethereal":
-        case "fear":
-        case "indestruct":
+        case SpecialProperty.PlusMinimumDamage:
+        case SpecialProperty.PlusMaximumDamage:
+        case SpecialProperty.Ethereal:
+        case SpecialProperty.GettingHitFearsEnemy:
+        case SpecialProperty.Indestructible:
             return 255;
         case "item_numsockets":
         case "item_tinkerflag2":
         default:
             return 0;
     }
-}
-
-const FormatEventDescription = (desc: string, min: number, max: number, parameter: string) => {
-    // %d%% CTC Lvl %d %s on Striking
-    // const regexp = /(%d%)% CTC Lvl (%d) (%s) (.+)/;
-    // const result = regexp.exec(desc);
-    return desc.replace(/%d%/, String(min)).replace(/%d/, String(max)).replace(/%s/, parameter);
 }
 
 export const FormatSpecialPropertyDescription = (propertyCode: string, min: number, max: number) => {
@@ -68,21 +105,21 @@ export const FormatSpecialPropertyDescription = (propertyCode: string, min: numb
     const minismax = min === max;
 
     switch (propertyCode) {
-        case "dmg%":
+        case SpecialProperty.EnhancedDamage:
             if (minismax) {
                 return `+${max}% Enhanced Damage`;
             } else {
                 return `+${min}-${max}% Enhanced Damage`;
             }
-        case "dmg-min":
+        case SpecialProperty.PlusMinimumDamage:
             return `+${min}-${max} to Minimum Damage`;
-        case "dmg-max":
+        case SpecialProperty.PlusMaximumDamage:
             return `+${min}-${max} to Maximum Damage`;
-        case "ethereal":
+        case SpecialProperty.Ethereal:
             return "Ethereal (Cannot Be Repaired)";
-        case "fear":
+        case SpecialProperty.GettingHitFearsEnemy:
             return `Getting Hit Causes Monster to Flee`;
-        case "indestruct":
+        case SpecialProperty.Indestructible:
             return "Indestructible";
         case "item_numsockets":
             return `Gem Socket (${max})`;
@@ -93,6 +130,11 @@ export const FormatSpecialPropertyDescription = (propertyCode: string, min: numb
             // To Do: Once all properties are accounted for... return null
             // return null; 
     }
+}
+
+const FormatEventDescription = (desc: string, min: number, max: number, parameter: string) => {
+    // %d%% CTC Lvl %d %s on Striking
+    return desc.replace(/%d%/, String(min)).replace(/%d/, String(max)).replace(/%s/, parameter);
 }
 
 export const FormatStatDescription = (statCode: string, descFunc: number, descVal: number, desc1: string, desc2: string, statFunc: number,
@@ -183,7 +225,7 @@ const FormatStatDescription0 = (statCode: string, descFunc: number, desc1: strin
                 return `${min}% ${desc1} ${max}`;
             case 24:
                 // used for charges, we all know how that desc looks
-                return `descfunc24`;
+                return `Level ${max} ${parameter} (${min} Charges)`;
             case 25:
                 // not used by vanilla, present in the code but I didn't test it yet
                 return `descfunc25`;
@@ -272,8 +314,7 @@ const FormatStatDescription1 = (statCode: string, descFunc: number, desc1: strin
         case 23:
             return `${min}% ${desc1} ${max}`;
         case 24:
-            // used for charges, we all know how that desc looks
-            return `descfunc24`;
+            return `Level ${max} ${parameter} (${min} Charges)`;
         case 25:
             // not used by vanilla, present in the code but I didn't test it yet
             return `descfunc25`;
@@ -363,8 +404,7 @@ const FormatStatDescription2 = (statCode: string, descFunc: number, desc1: strin
         case 23:
             return `${desc1} ${min}% ${max}`;
         case 24:
-            // used for charges, we all know how that desc looks
-            return `descfunc24`;
+            return `Level ${max} ${parameter} (${min} Charges)`;
         case 25:
             // not used by vanilla, present in the code but I didn't test it yet
             return `descfunc25`;

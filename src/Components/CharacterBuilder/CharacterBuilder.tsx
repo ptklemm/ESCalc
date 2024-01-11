@@ -140,7 +140,7 @@ export default function CharacterBuilder() {
     const handleAttributeBlur = (event: FocusEvent<HTMLInputElement>) => {
         const attribute = event.target.id;
         let value = Number(event.target.value);
-        const baseValue = character[`Base${attribute}` as keyof Character] as number;
+        const baseValue = character[`base${attribute}` as keyof Character] as number;
 
         if (!value || value < baseValue) {
             value = baseValue;

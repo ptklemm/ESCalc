@@ -96,3 +96,7 @@ export interface Item {
     properties: ItemProperty[];
     isModified: boolean;
 }
+
+export function ItemIsWeapon(item: Item | null) {
+    return item && item.isWearable && (item.weaponClass1H || item.weaponClass2H);
+}
