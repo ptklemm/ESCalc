@@ -15,13 +15,13 @@ const ResistancePenalty = {
     [Difficulty.Hell]: -100
 }
 
-function SumOfProperty(inventory: Inventory, propertyName: string, useParameter?: boolean) {
+function SumOfProperty(inventory: Inventory, propertyCode: PropertyCode, useParameter?: boolean) {
     let sum = 0;
 
     for (const slot of Object.keys(inventory)) {
         const item = inventory[slot];
         if (item) {
-            const prop = getItemPropertyByName(item, propertyName);
+            const prop = getItemPropertyByName(item, propertyCode);
             if (prop) {
                 sum += useParameter ? toNumber(prop.parameter) : prop.max;
             }
@@ -31,12 +31,12 @@ function SumOfProperty(inventory: Inventory, propertyName: string, useParameter?
     return sum;
 }
 
-function SumOfPropertyOnlyArmor(inventory: Inventory, propertyName: string, useParameter?: boolean) {
-    let total = SumOfProperty(inventory, propertyName, useParameter);
+function SumOfPropertyOnlyArmor(inventory: Inventory, propertyCode: PropertyCode, useParameter?: boolean) {
+    let total = SumOfProperty(inventory, propertyCode, useParameter);
     let tempProp: ItemProperty | undefined;
 
     if (inventory.Primary1 && itemIsWeapon(inventory.Primary1)) {
-        tempProp = getItemPropertyByName(inventory.Primary1, propertyName);
+        tempProp = getItemPropertyByName(inventory.Primary1, propertyCode);
 
         if (tempProp) { 
             total -= useParameter ? toNumber(tempProp.parameter) : tempProp.max;
@@ -44,7 +44,7 @@ function SumOfPropertyOnlyArmor(inventory: Inventory, propertyName: string, useP
     }
 
     if (inventory.Secondary1 && itemIsWeapon(inventory.Secondary1)) {
-        tempProp = getItemPropertyByName(inventory.Secondary1, propertyName);
+        tempProp = getItemPropertyByName(inventory.Secondary1, propertyCode);
 
         if (tempProp) { 
             total -= useParameter ? toNumber(tempProp.parameter) : tempProp.max;
@@ -186,6 +186,38 @@ function calculateStamina(character: Character, inventory: Inventory, attributes
     return MaximumStamina;
 }
 
+function calculateStatPoints(character: Character) {
+    let statPointsFromQuests = 0;
+    
+    if (character.quests[Difficulty.Normal][Quest.LamEsen]) { statPointsFromQuests += 5; }
+    if (character.quests[Difficulty.Nightmare][Quest.LamEsen]) { statPointsFromQuests += 5; }
+    if (character.quests[Difficulty.Hell][Quest.LamEsen]) { statPointsFromQuests += 5; }
+
+    return ((character.level - 1) * character.statPointsPerLevel) + statPointsFromQuests;
+}
+
+function calculateResistances(character: Character, inventory: Inventory) {
+    let resistancesFromQuests = 0;
+
+    if (character.quests[Difficulty.Normal][Quest.Anya]) { resistancesFromQuests += 10; }
+    if (character.quests[Difficulty.Nightmare][Quest.Anya]) { resistancesFromQuests += 10; }
+    if (character.quests[Difficulty.Hell][Quest.Anya]) { resistancesFromQuests += 10; }
+
+    const resistAllMax = SumOfProperty(inventory, PropertyCode.ResistAllMax);
+    const resistFireMax = Math.min(95, 75 + SumOfProperty(inventory, PropertyCode.ResistFireMax) + resistAllMax);
+    const resistColdMax = Math.min(95, 75 + SumOfProperty(inventory, PropertyCode.ResistColdMax) + resistAllMax);
+    const resistLightningMax = Math.min(95, 75 + SumOfProperty(inventory, PropertyCode.ResistLightningMax) + resistAllMax);
+    const resistPoisonMax = Math.min(95, 75 + SumOfProperty(inventory, PropertyCode.ResistPoisonMax) + resistAllMax);
+
+    const resistAll = SumOfProperty(inventory, PropertyCode.ResistAll);
+    const resistanceFire = Math.min(resistFireMax, ResistancePenalty[character.difficultyLevel] + resistancesFromQuests + SumOfProperty(inventory, PropertyCode.ResistFire) + resistAll);
+    const resistanceCold = Math.min(resistColdMax, ResistancePenalty[character.difficultyLevel] + resistancesFromQuests + SumOfProperty(inventory, PropertyCode.ResistCold) + resistAll);
+    const resistanceLightning = Math.min(resistLightningMax, ResistancePenalty[character.difficultyLevel] + resistancesFromQuests + SumOfProperty(inventory, PropertyCode.ResistLightning) + resistAll);
+    const resistancePoison = Math.min(resistPoisonMax, ResistancePenalty[character.difficultyLevel] + resistancesFromQuests + SumOfProperty(inventory, PropertyCode.ResistPoison) + resistAll);
+
+    return { resistanceFire, resistanceCold, resistanceLightning, resistancePoison }
+}
+
 export interface CalculatedStats {
     totalStatPoints: number;
     statsInStrength: number;
@@ -215,7 +247,7 @@ export interface CalculatedStats {
 }
 
 export function calculateStats(character: Character, inventory: Inventory): CalculatedStats {
-    const totalStatPoints = (character.level - 1) * character.statPointsPerLevel;
+    const totalStatPoints = calculateStatPoints(character);
     const statsInStrength = character.strength - character.baseStrength;
     const statsInDexterity = character.dexterity - character.baseDexterity;
     const statsInVitality = character.vitality - character.baseVitality;
@@ -246,10 +278,12 @@ export function calculateStats(character: Character, inventory: Inventory): Calc
     // Total Blocking = [(Blocking * (Dexterity – 15)) / (Character Level * 2)]
     const chanceToBlock = Math.floor((inventoryStats.chanceToBlock * (dexterity - 15)) / (character.level * 2));
 
-    const resistanceFire = ResistancePenalty[character.difficultyLevel];
-    const resistanceCold = ResistancePenalty[character.difficultyLevel];
-    const resistanceLightning = ResistancePenalty[character.difficultyLevel];
-    const resistancePoison = ResistancePenalty[character.difficultyLevel];
+    const {
+        resistanceFire, 
+        resistanceCold, 
+        resistanceLightning, 
+        resistancePoison
+     } = calculateResistances(character, inventory);
 
     // Calculate Total Damage
     const totalDamage = calculateTotalDamage(character, modifiedAttributes, inventory);

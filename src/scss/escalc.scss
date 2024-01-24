@@ -76,6 +76,22 @@ p {
     font-size: $font-size-sm;
 }
 
+.item-normal {
+    background-color: ghostwhite;
+}
+
+.item-exceptional {
+    background-color: lightgray;
+}
+
+.item-elite {
+    background-color: darkgray;
+}
+
+.table > :not(caption) > * > * {
+    background-color: inherit;
+}
+
 .table > tbody > tr > td, 
 .table > tbody > tr > th, 
 .table > tfoot > tr > td, 

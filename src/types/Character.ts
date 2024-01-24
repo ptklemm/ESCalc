@@ -46,12 +46,12 @@ export enum Attribute {
 }
 
 export enum Quest {
-    DenOfEvil = "Den of Evil",
-    Radament = "Radament's Lair",
-    GoldenBird = "The Golden Bird",
-    LamEsen = "Lam Esen's Tome",
-    Izual = "The Fallen Angel",
-    Anya = "The Prison of Ice"
+    DenOfEvil = "Den of Evil", // +1 skill point
+    Radament = "Radament's Lair", // +1 skill point
+    GoldenBird = "The Golden Bird", // +20 life
+    LamEsen = "Lam Esen's Tome", // +5 stat points
+    Izual = "The Fallen Angel", // +2 skill points
+    Anya = "The Prison of Ice" // +10% all resistances
 }
 
 interface QuestCompletionList {

@@ -155,11 +155,6 @@ class ItemCatalog {
             const uniqueItem = this.createUniqueItem(uniqueItemData);
             if (uniqueItem) this.uniques.push(uniqueItem);
         });
-
-        // console.log(this.GetPropertyByCode("dmg%"))
-        // console.log(this.GetUniqueItemByName("The Fires of Sunlight"));
-        // console.log(this.GetUniqueItemByName("The Grandfather"));
-        console.log(this.UniqueSorcerersTalismans);
     }
 
     get AllItems() {return [ ...this.miscellaneous, ...this.armor, ...this.weapons, ...this.uniques ]}

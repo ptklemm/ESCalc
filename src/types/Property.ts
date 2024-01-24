@@ -33,7 +33,19 @@ export enum PropertyCode {
     MagicDamageReduction = "red-mag",
     MaxDurability = "dur",
     MaxDurabilityPercent = "dur%",
-    Requirements = "ease"
+    Requirements = "ease",
+    ResistFire = "res-fire",
+    ResistFireMax = "res-fire-max",
+    ResistLightning = "res-ltng",
+    ResistLightningMax = "res-ltng-max",
+    ResistCold = "res-cold",
+    ResistColdMax = "res-cold-max",
+    ResistMagic = "res-mag",
+    ResistMagicMax = "res-mag-max",
+    ResistPoison = "res-pois",
+    ResistPoisonMax = "res-pois-max",
+    ResistAll = "res-all",
+    ResistAllMax = "res-all-max",
 }
 
 export type Stat = {
@@ -385,7 +397,11 @@ const FormatStatDescription2 = (statCode: string, descFunc: number, desc1: strin
         case 3:
             return `${desc1} ${min}`;
         case 4:
-            return `${desc1} +${min}%`;
+            if (min === max) {
+                return `${desc1} +${max}%`;
+            } else {
+                return `${desc1} +${min}-${max}%`;
+            }
         case 5:
             return `${desc1} ${Number(min)*100/128}%`;
         case 6:

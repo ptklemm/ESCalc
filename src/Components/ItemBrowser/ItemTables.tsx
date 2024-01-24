@@ -2,7 +2,7 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table';
-import { Item } from '../../types/Item';
+import { Item, ItemTier } from '../../types/Item';
 import { ItemProperty } from '../../types/Property';
 import { Category } from '../../types/ItemCatalog';
 import renderItemProperties from '../shared/renderItemProperties';
@@ -159,7 +159,6 @@ const UniqueTableHeader = () => {
     return (
         <tr>
             <th>Code</th>
-            <th>Tier</th>
             <th>Name</th>
             <th>QLvl</th>
             <th>Req Lvl</th>
@@ -170,11 +169,20 @@ const UniqueTableHeader = () => {
 
 const renderUniqueItems = (items: Item[]) => {
     return items.map((item, index) => {
+        let bgClass: string;
+
+        if (item.tier === ItemTier.Elite) {
+            bgClass = "item-elite";
+        } else if (item.tier === ItemTier.Exceptional) {
+            bgClass = "item-exceptional";
+        } else {
+            bgClass = "item-normal";
+        }
+
         return (
-            <tr key={index}>
+            <tr key={index} className={bgClass}>
                 <td>{item.code}</td>
-                <td>{item.tier}</td>
-                <td>{item.name}</td>
+                <td>{item.name}<br /><p>{item.baseName}</p></td>
                 <td>{item.qualityLevel}</td>
                 <td>{item.requiredLevel}</td>
                 <PropertiesCell itemCode={index} properties={item.properties} />
@@ -186,7 +194,7 @@ const renderUniqueItems = (items: Item[]) => {
 const UniqueSubTable = ({ subheader, items }: SubTableProps) => {
     return (<>
         <tr>
-            <th colSpan={6}>{subheader}</th>
+            <th colSpan={5}>{subheader}</th>
         </tr>
         <UniqueTableHeader />
         {renderUniqueItems(items)}
@@ -205,7 +213,7 @@ const UniqueTable = ({ header, items, subTables }: TableProps) => {
         <Table style={{textAlign: 'center'}} id={header} bordered>
             <tbody>
                 <tr>
-                    <th colSpan={6}>{header}</th>
+                    <th colSpan={5}>{header}</th>
                 </tr>
                 {renderItems && <UniqueTableHeader />}
                 {renderItems && renderUniqueItems(items)}
