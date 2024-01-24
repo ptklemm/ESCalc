@@ -1,21 +1,39 @@
 import { toNumber } from "./utils";
 
 export enum PropertyCode {
+    Ethereal = "ethereal",
+    Indestructible = "indestruct",
+    EnhancedDamage = "dmg%",
+    PlusMinimumDamage = "dmg-min",
+    PlusMaximumDamage = "dmg-max",
+    GettingHitFearsEnemy = "fear",
     AllStats = "all-stats",
     Strength = "str",
+    StrengthPerLevel = "str/lvl",
     Dexterity = "dex",
+    DexterityPerLevel = "dex/lvl",
     Vitality = "vit",
+    VitalityPerLevel = "vit/lvl",
     Energy = "enr",
+    EnergyPerLevel = "enr/lvl",
     Life = "hp",
+    LifePerLevel = "hp/lvl",
     LifePercent = "hp%",
     Mana = "mana",
+    ManaPerLevel = "mana/lvl",
     ManaPercent = "mana%",
+    Stamina = "stam",
+    StaminaPerLevel = "stam/lvl",
     Defense = "ac",
+    DefensePerLevel = "ac/lvl",
     DefenseVsMissile = "ac-miss",
     DefensePercent = "ac%",
     DamageResist = "red-dmg%",
     DamageReduction = "red-dmg",
-    MagicDamageReduction = "red-mag"
+    MagicDamageReduction = "red-mag",
+    MaxDurability = "dur",
+    MaxDurabilityPercent = "dur%",
+    Requirements = "ease"
 }
 
 export type Stat = {
@@ -44,6 +62,8 @@ export interface Property {
 export interface ItemPropertyDescription {
     priority: number;
     text: string | null;
+    function: number | null;
+    value: number | null;
 }
 
 export interface ItemProperty {
@@ -56,40 +76,44 @@ export interface ItemProperty {
     descriptions: ItemPropertyDescription[]
 }
 
-export enum SpecialProperty {
-    Ethereal = "ethereal",
-    Indestructible = "indestruct",
-    EnhancedDamage = "dmg%",
-    PlusMinimumDamage = "dmg-min",
-    PlusMaximumDamage = "dmg-max",
-    GettingHitFearsEnemy = "fear"
-}
+// export enum SpecialProperty {
+//     Ethereal = "ethereal",
+//     Indestructible = "indestruct",
+//     EnhancedDamage = "dmg%",
+//     PlusMinimumDamage = "dmg-min",
+//     PlusMaximumDamage = "dmg-max",
+//     GettingHitFearsEnemy = "fear"
+// }
 
 export function NewItemPropertyDescription(property: Property, stat: Stat | null, min: number, max: number, parameter: string): ItemPropertyDescription {
     const priority = stat ? stat.descriptionPriority : GetSpecialPropertyDescriptionPriority(property.code);
 
     let text: string | null = null;
+    let func: number | null = null;
+    let value: number | null = null;
 
     if (stat) {
         text = FormatStatDescription(stat.code, stat.descriptionFunction, stat.descriptionValue,
             stat.description1, stat.description2, stat.function, min, max, parameter);
+        func = stat.descriptionFunction;
+        value = stat.descriptionValue;
     } else {
         text = FormatSpecialPropertyDescription(property.code, min, max);
     }
 
-    return { priority, text }
+    return { priority, text, function: func, value }
 }
 
 export const GetSpecialPropertyDescriptionPriority = (propertyCode: string): number => {
     // Min is 0, max is 255. The higher the number, the higher up in the list it is displayed.
     switch (propertyCode) {
-        case SpecialProperty.EnhancedDamage:
+        case PropertyCode.EnhancedDamage:
             return 135;
-        case SpecialProperty.PlusMinimumDamage:
-        case SpecialProperty.PlusMaximumDamage:
-        case SpecialProperty.Ethereal:
-        case SpecialProperty.GettingHitFearsEnemy:
-        case SpecialProperty.Indestructible:
+        case PropertyCode.PlusMinimumDamage:
+        case PropertyCode.PlusMaximumDamage:
+        case PropertyCode.Ethereal:
+        case PropertyCode.GettingHitFearsEnemy:
+        case PropertyCode.Indestructible:
             return 255;
         case "item_numsockets":
         case "item_tinkerflag2":
@@ -105,21 +129,21 @@ export const FormatSpecialPropertyDescription = (propertyCode: string, min: numb
     const minismax = min === max;
 
     switch (propertyCode) {
-        case SpecialProperty.EnhancedDamage:
+        case PropertyCode.EnhancedDamage:
             if (minismax) {
                 return `+${max}% Enhanced Damage`;
             } else {
                 return `+${min}-${max}% Enhanced Damage`;
             }
-        case SpecialProperty.PlusMinimumDamage:
+        case PropertyCode.PlusMinimumDamage:
             return `+${min}-${max} to Minimum Damage`;
-        case SpecialProperty.PlusMaximumDamage:
+        case PropertyCode.PlusMaximumDamage:
             return `+${min}-${max} to Maximum Damage`;
-        case SpecialProperty.Ethereal:
+        case PropertyCode.Ethereal:
             return "Ethereal (Cannot Be Repaired)";
-        case SpecialProperty.GettingHitFearsEnemy:
+        case PropertyCode.GettingHitFearsEnemy:
             return `Getting Hit Causes Monster to Flee`;
-        case SpecialProperty.Indestructible:
+        case PropertyCode.Indestructible:
             return "Indestructible";
         case "item_numsockets":
             return `Gem Socket (${max})`;
@@ -250,13 +274,25 @@ const FormatStatDescription1 = (statCode: string, descFunc: number, desc1: strin
 
     switch(descFunc) {
         case 1:
-            return `+${min} ${desc1}`;
+            if (min === max) {
+                return `+${max} ${desc1}`;
+            } else {
+                return `+${min}-${max} ${desc1}`;
+            }
         case 2:
-            return `${min}% ${desc1}`;
+            if (min === max) {
+                return `${max}% ${desc1}`;
+            } else {
+                return `${min}-${max}% ${desc1}`;
+            }
         case 3:
             return `${min} ${desc1}`;
         case 4:
-            return `+${min}% ${desc1}`;
+            if (min === max) {
+                return `+${max}% ${desc1}`;
+            } else {
+                return `+${min}-${max}% ${desc1}`;
+            }
         case 5:
             return `${Number(min)*100/128}% ${desc1}`;
         case 6:
@@ -341,7 +377,11 @@ const FormatStatDescription2 = (statCode: string, descFunc: number, desc1: strin
         case 1:
             return `${desc1} +${min}`;
         case 2:
-            return `${desc1} ${min}%`;
+            if (min === max) {
+                return `${desc1} ${max}%`;
+            } else {
+                return `${desc1} ${min}-${max}%`;
+            }
         case 3:
             return `${desc1} ${min}`;
         case 4:

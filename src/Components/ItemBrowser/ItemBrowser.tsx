@@ -73,6 +73,26 @@ export default function ItemBrowser() {
                         </Tab.Pane>
                         <Tab.Pane eventKey={Category.UniqueArmor}>
                             <ItemTables id="UniqueArmor" category={Category.UniqueArmor} tables={[
+                                { header: "Unique Rings", crumb: "Rings", subTables: [
+                                    { subheader: "Generic Rings", items: catalog.UniqueRings },
+                                    { subheader: "Amazonian Loops", items: catalog.UniqueAmazonianLoops },
+                                    { subheader: "Assassin's Spirals", items: catalog.UniqueAssassinsSpirals },
+                                    { subheader: "Barbaric Hoops", items: catalog.UniqueBarbaricHoops },
+                                    { subheader: "Druid's Seals", items: catalog.UniqueDruidsSeals },
+                                    { subheader: "Necromancer's Stones", items: catalog.UniqueNecromancersStones },
+                                    { subheader: "Paladic Haloes", items: catalog.UniquePaladicHaloes },
+                                    { subheader: "Sorcerer's Bands", items: catalog.UniqueSorcerersBands }
+                                ]},
+                                { header: "Unique Amulets", crumb: "Amulets", subTables: [
+                                    { subheader: "Generic Amulets", items: catalog.UniqueAmulets },
+                                    { subheader: "Amazonian Pins", items: catalog.UniqueAmazonianPins },
+                                    { subheader: "Assassin's Chokers", items: catalog.UniqueAssassinsChokers },
+                                    { subheader: "Totemic Pebbles", items: catalog.UniqueTotemicPebbles },
+                                    { subheader: "Druidic Necklaces", items: catalog.UniqueDruidicNecklaces },
+                                    { subheader: "Death's Lockets", items: catalog.UniqueDeathsLockets },
+                                    { subheader: "Holy Pendants", items: catalog.UniqueHolyPendants },
+                                    { subheader: "Sorcerer's Talismans", items: catalog.UniqueSorcerersTalismans }
+                                ]},
                                 { header: "Unique Helms", items: catalog.UniqueHelms, crumb: "Helms" },
                                 { header: "Unique Circlets", items: catalog.UniqueCirclets, crumb: "Circlets" },
                                 { header: "Unique Body Armor", items: catalog.UniqueBodyArmor, crumb: "Body Armor" },

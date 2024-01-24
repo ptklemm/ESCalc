@@ -16,7 +16,8 @@ export default function ESCalc() {
     
     const search = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const res = catalog.SearchItemsByNameOrCode(searchValue);
+        let res = catalog.searchItemsByNameOrCode(searchValue);
+        res = res.concat(catalog.searchItemsByPropertyCode(searchValue));
         console.log(res);
     }
 

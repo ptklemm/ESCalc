@@ -16,36 +16,43 @@ import {
 import { Character } from '../../types/Character.ts';
 import { Inventory, Slot, GetSlotType } from '../../types/Inventory.ts';
 import { Category } from '../../types/ItemCatalog.ts';
-import { Item, ItemKind } from '../../types/Item.ts';
-import ItemSearch from './InventorySearch.tsx';
+import { Item, ItemKind, applyPropertiesToItem } from '../../types/Item.ts';
+import InventorySearch from './InventorySearch.tsx';
 import renderItemProperties from '../shared/renderItemProperties.tsx';
 
 interface ItemDisplayProps {
     item: Item;
+    characterLevel: number;
 }
 
-const ItemDisplay = ({ item }: ItemDisplayProps ) => (
-    <div id={item.code} style={{ textAlign: 'center' }}>
-        <p>Item Level: {item.qualityLevel}</p>
-        {item.defenseMax ? <p>Defense: {item.defenseMax}</p> : null}
-        {item.chanceToBlock ? <p>Chance to Block: {item.chanceToBlock}%</p> : null}
-        {item.damageMax ? <p>Damage: {item.damageMin}-{item.damageMax}</p> : null}
-        {!item.isIndestructible && item.durability ? <p>Durability: {item.durability} of {item.durability}</p> : null}
-        {item.requiredDexterity ? <p>Required Dexterity: {item.requiredDexterity}</p> : null}
-        {item.requiredStrength ? <p>Required Strength: {item.requiredStrength}</p> : null}
-        {item.requiredLevel ? <p>Required Level: {item.requiredLevel}</p> : null}
-        {renderItemProperties(item.properties, item.code)}
-    </div>
-);
+const ItemDisplay = ({ item, characterLevel }: ItemDisplayProps ) => {
+    const mItem = applyPropertiesToItem(item, characterLevel);
+
+    return (
+        <div id={mItem.code} style={{ textAlign: 'center' }}>
+            <p>Item Level: {mItem.qualityLevel}</p>
+            {mItem.defenseMax ? <p>Defense: {mItem.defenseMax}</p> : null}
+            {mItem.chanceToBlock ? <p>Chance to Block: {mItem.chanceToBlock}%</p> : null}
+            {mItem.damageMax ? <p>Damage: {mItem.damageMin}-{mItem.damageMax}</p> : null}
+            {mItem.damageMax2H ? <p>2H Damage: {mItem.damageMin2H}-{mItem.damageMax2H}</p> : null}
+            {!mItem.isIndestructible && mItem.durability ? <p>Durability: {mItem.durability} of {mItem.durability}</p> : null}
+            {mItem.requiredDexterity ? <p>Required Dexterity: {mItem.requiredDexterity}</p> : null}
+            {mItem.requiredStrength ? <p>Required Strength: {mItem.requiredStrength}</p> : null}
+            {mItem.requiredLevel ? <p>Required Level: {mItem.requiredLevel}</p> : null}
+            {renderItemProperties(mItem.properties, mItem.code)}
+        </div>
+    );
+};
 
 interface InventorySlotProps {
     slot: Slot;
     category: Category;
     item: Item | null;
+    characterLevel: number;
     onClick: (category: Category, slot: Slot) => void;
 }
 
-const InventorySlot = ({ category, slot, item, onClick }: InventorySlotProps) => {
+const InventorySlot = ({ category, slot, item, characterLevel, onClick }: InventorySlotProps) => {
     const search = useCallback(() => {
         onClick(category, slot);
     }, [category, slot, onClick]);
@@ -57,11 +64,8 @@ const InventorySlot = ({ category, slot, item, onClick }: InventorySlotProps) =>
                 {item?.kind !== ItemKind.BaseItem ? <Card.Subtitle>{item?.baseName}</Card.Subtitle> : null}
             </Card.Header>
             <Card.Body style={{ overflow: 'auto' }}>
-                {item ? <ItemDisplay item={item} /> : null}
+                {item ? <ItemDisplay item={item} characterLevel={characterLevel} /> : null}
             </Card.Body>
-            {/* <Card.Footer>
-                <Button size="sm" onClick={search}>Search</Button>
-            </Card.Footer> */}
         </Card>
     );
 }
@@ -101,7 +105,7 @@ export default function CharacterInventory({ character, inventory }: CharacterIn
             <Modal size="xl" centered show={showModal} onHide={hideSearchModal}>
                 <Modal.Header closeButton />
                 <Modal.Body>
-                    <ItemSearch calledFromInventory onItemSelected={selectItem} />
+                    <InventorySearch calledFromInventory onItemSelected={selectItem} />
                 </Modal.Body>
             </Modal>
             <Row style={{ marginBottom: 20, paddingLeft: 0, paddingRight: 0 }}>
@@ -114,29 +118,29 @@ export default function CharacterInventory({ character, inventory }: CharacterIn
                         <Tab.Content>
                             <Tab.Pane eventKey="primary">
                                 <Row>
-                                    <Col><InventorySlot slot={Slot.Primary1} category={Category.UniqueWeapons} item={inventory[Slot.Primary1]} onClick={showSearchModal}/></Col>
-                                    <Col><InventorySlot slot={Slot.Secondary1} category={Category.UniqueArmor} item={inventory[Slot.Secondary1]} onClick={showSearchModal} /></Col>
+                                    <Col><InventorySlot slot={Slot.Primary1} category={Category.UniqueWeapons} item={inventory[Slot.Primary1]} characterLevel={character.level} onClick={showSearchModal}/></Col>
+                                    <Col><InventorySlot slot={Slot.Secondary1} category={Category.UniqueArmor} item={inventory[Slot.Secondary1]} characterLevel={character.level} onClick={showSearchModal} /></Col>
                                 </Row>
                             </Tab.Pane>
                             <Tab.Pane eventKey="secondary">
                                 <Row>
-                                    <Col><InventorySlot slot={Slot.Primary2} category={Category.UniqueWeapons} item={inventory[Slot.Primary2]} onClick={showSearchModal} /></Col>
-                                    <Col><InventorySlot slot={Slot.Secondary2} category={Category.UniqueArmor} item={inventory[Slot.Secondary2]} onClick={showSearchModal} /></Col>
+                                    <Col><InventorySlot slot={Slot.Primary2} category={Category.UniqueWeapons} item={inventory[Slot.Primary2]} characterLevel={character.level} onClick={showSearchModal} /></Col>
+                                    <Col><InventorySlot slot={Slot.Secondary2} category={Category.UniqueArmor} item={inventory[Slot.Secondary2]} characterLevel={character.level} onClick={showSearchModal} /></Col>
                                 </Row>
                             </Tab.Pane>
                         </Tab.Content>
                     </Tab.Container>
                 </Col>
-                <Col><InventorySlot slot={Slot.Body} category={Category.UniqueArmor} item={inventory[Slot.Body]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.Helm} category={Category.UniqueArmor} item={inventory[Slot.Helm]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.Gloves} category={Category.UniqueArmor} item={inventory[Slot.Gloves]} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.Body} category={Category.UniqueArmor} item={inventory[Slot.Body]} characterLevel={character.level} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.Helm} category={Category.UniqueArmor} item={inventory[Slot.Helm]} characterLevel={character.level} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.Gloves} category={Category.UniqueArmor} item={inventory[Slot.Gloves]} characterLevel={character.level} onClick={showSearchModal} /></Col>
             </Row>
             <Row style={{ paddingLeft: 0, paddingRight: 0 }}>
-                <Col><InventorySlot slot={Slot.Belt} category={Category.UniqueArmor} item={inventory[Slot.Belt]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.Boots} category={Category.UniqueArmor} item={inventory[Slot.Boots]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.Amulet} category={Category.UniqueArmor} item={inventory[Slot.Amulet]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.LeftRing} category={Category.UniqueArmor} item={inventory[Slot.LeftRing]} onClick={showSearchModal} /></Col>
-                <Col><InventorySlot slot={Slot.RightRing} category={Category.UniqueArmor} item={inventory[Slot.RightRing]} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.Belt} category={Category.UniqueArmor} item={inventory[Slot.Belt]} characterLevel={character.level} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.Boots} category={Category.UniqueArmor} item={inventory[Slot.Boots]} characterLevel={character.level} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.Amulet} category={Category.UniqueArmor} item={inventory[Slot.Amulet]} characterLevel={character.level} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.LeftRing} category={Category.UniqueArmor} item={inventory[Slot.LeftRing]} characterLevel={character.level} onClick={showSearchModal} /></Col>
+                <Col><InventorySlot slot={Slot.RightRing} category={Category.UniqueArmor} item={inventory[Slot.RightRing]} characterLevel={character.level} onClick={showSearchModal} /></Col>
             </Row>
         </div>
     );

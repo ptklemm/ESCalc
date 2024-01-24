@@ -3,14 +3,16 @@ import { Row, Col, Form } from 'react-bootstrap';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks.ts';
 import { 
     changeCharacter,
+    changeName,
     changeLevel,
     changeDifficulty,
     changeStrength,
     changeDexterity,
     changeVitality,
-    changeEnergy
+    changeEnergy,
+    changeQuestStatus
  } from '../../redux/characterReducer.ts';
-import { HorizontalInput, HorizontalSelect, StatDisplay } from '../shared/FormComponents.tsx';
+import { HorizontalInput, HorizontalSelect, AttributeInputGroup } from '../shared/FormComponents.tsx';
 import { 
     Character, 
     NewCharacter, 
@@ -18,9 +20,12 @@ import {
     CLASS_OPTIONS_MINIMAL, 
     DIFFICULTY_OPTIONS, 
     Difficulty, 
-    Attribute 
+    Attribute,
+    QuestStatusChange
 } from '../../types/Character.ts';
-import calculateStats from './calculateStats.ts';
+import { calculateStats } from './calculateStats.ts';
+import CharacterQuests from './CharacterQuests.tsx';
+import CalculatedStatsDisplay from './CalculatedStatsDisplay.tsx';
 import CharacterInventory from './CharacterInventory.tsx';
 
 interface AttributeInputs {
@@ -51,35 +56,35 @@ export default function CharacterBuilder() {
     const handleClassSelect = (event: ChangeEvent<HTMLSelectElement>) => {
         const value = event.target.value;
 
-        if (!value || value == character.characterClass)
+        if (!value || value === character.characterClass)
             return;
 
         let newCharacter: Character;
 
         switch (value) {
             case CharacterClass.Amazon:
-                newCharacter = NewCharacter(CharacterClass.Amazon);
+                newCharacter = NewCharacter(CharacterClass.Amazon, character.name);
                 break;
             case CharacterClass.Assassin:
-                newCharacter = NewCharacter(CharacterClass.Assassin);
+                newCharacter = NewCharacter(CharacterClass.Assassin, character.name);
                 break;
             case CharacterClass.Barbarian:
-                newCharacter = NewCharacter(CharacterClass.Barbarian);
+                newCharacter = NewCharacter(CharacterClass.Barbarian, character.name);
                 break;
             case CharacterClass.Druid:
-                newCharacter = NewCharacter(CharacterClass.Druid);
+                newCharacter = NewCharacter(CharacterClass.Druid, character.name);
                 break;
             case CharacterClass.Necromancer:
-                newCharacter = NewCharacter(CharacterClass.Necromancer);
+                newCharacter = NewCharacter(CharacterClass.Necromancer, character.name);
                 break;
             case CharacterClass.Paladin:
-                newCharacter = NewCharacter(CharacterClass.Paladin);
+                newCharacter = NewCharacter(CharacterClass.Paladin, character.name);
                 break;
             case CharacterClass.Sorceress:
-                newCharacter = NewCharacter(CharacterClass.Sorceress);
+                newCharacter = NewCharacter(CharacterClass.Sorceress, character.name);
                 break;
             default:
-                newCharacter = NewCharacter();
+                newCharacter = NewCharacter(undefined, character.name);
         }
 
         setLevel(String(newCharacter.level));
@@ -89,6 +94,7 @@ export default function CharacterBuilder() {
             vitality: String(newCharacter.vitality),
             energy: String(newCharacter.energy)
         });
+
         dispatch(changeCharacter(newCharacter));
     }
 
@@ -168,45 +174,40 @@ export default function CharacterBuilder() {
         }
     }
 
+    const handleQuestChange = (status: QuestStatusChange) => {
+        dispatch(changeQuestStatus(status));
+    }
+
     return (
         <Row id="CharacterBuilder">
             <Col md={3}>
                 <Row>
-                    <Form id="CharacterStats">
-                        <Row>
-                            <HorizontalSelect id="Class" label="Class" options={CLASS_OPTIONS_MINIMAL} value={character.characterClass} onChange={handleClassSelect} />
-                            <HorizontalInput id="Level" label="Level" value={level} onChange={e => setLevel(e.target.value)} onBlur={handleLevelBlur} />
-                            <HorizontalSelect id="Difficulty" label="Difficulty" options={DIFFICULTY_OPTIONS} value={character.difficultyLevel} onChange={handleDifficultyChange} />
-                        </Row>
-                        <Row>
-                            <HorizontalInput id={Attribute.Strength} label={Attribute.Strength} value={attributes.strength} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
-                            <HorizontalInput id={Attribute.Dexterity} label={Attribute.Dexterity} value={attributes.dexterity} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
-                            <HorizontalInput id={Attribute.Vitality} label={Attribute.Vitality} value={attributes.vitality} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
-                            <HorizontalInput id={Attribute.Energy} label={Attribute.Energy} value={attributes.energy} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
-                        </Row>
-                    </Form>
+                    <Col>
+                        <Form id="CharacterStats">
+                            <fieldset>
+                            <legend>Character</legend>
+                                <HorizontalInput id="Name" label="Name" value={character.name} onChange={e => {dispatch(changeName(e.target.value))}} />
+                                <HorizontalSelect id="Class" label="Class" options={CLASS_OPTIONS_MINIMAL} value={character.characterClass} onChange={handleClassSelect} />
+                                <HorizontalInput id="Level" label="Level" type="number" value={level} onChange={e => setLevel(e.target.value)} onBlur={handleLevelBlur} />
+                                <HorizontalSelect id="Difficulty" label="Difficulty" options={DIFFICULTY_OPTIONS} value={character.difficultyLevel} onChange={handleDifficultyChange} />
+                                <AttributeInputGroup id={Attribute.Strength} label={Attribute.Strength} value={attributes.strength} displayValue={stats.strength} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                                <AttributeInputGroup id={Attribute.Dexterity} label={Attribute.Dexterity} value={attributes.dexterity} displayValue={stats.dexterity} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                                <AttributeInputGroup id={Attribute.Vitality} label={Attribute.Vitality} value={attributes.vitality} displayValue={stats.vitality} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                                <AttributeInputGroup id={Attribute.Energy} label={Attribute.Energy} value={attributes.energy} displayValue={stats.energy} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
+                                <Form.Text>Points Remaining: {stats.statPointsRemaining}</Form.Text>
+                            </fieldset>
+                        </Form>
+                    </Col>
                 </Row>
                 <Row>
-                    <div id="CalculatedStats">
-                        <StatDisplay>Points Remaining: {stats.statPointsRemaining}</StatDisplay>
-                        <StatDisplay>Modified Strength: {stats.strength}</StatDisplay>
-                        <StatDisplay>Modified Dexterity: {stats.dexterity}</StatDisplay>
-                        <StatDisplay>Modified Vitality: {stats.vitality}</StatDisplay>
-                        <StatDisplay>Modified Energy: {stats.energy}</StatDisplay>
-                        <StatDisplay>Life: {stats.life}</StatDisplay>
-                        <StatDisplay>Mana: {stats.mana}</StatDisplay>
-                        <StatDisplay>Stamina: {stats.stamina}</StatDisplay>
-                        <StatDisplay>Attack Damage: {stats.attackDamageMin}-{stats.attackDamageMax}</StatDisplay>
-                        <StatDisplay>Attack Rating: {stats.attackRating}</StatDisplay>
-                        <StatDisplay>Chance to Hit: {stats.chanceToHit}</StatDisplay>
-                        <StatDisplay>Defense: {stats.defense}</StatDisplay>
-                        <StatDisplay>Chance to Be Hit: {stats.chanceToBeHit}</StatDisplay>
-                        <StatDisplay>Chance to Block: {stats.chanceToBlock}%</StatDisplay>
-                        <StatDisplay>Fire Resistance: {stats.resistanceFire}</StatDisplay>
-                        <StatDisplay>Cold Resistance: {stats.resistanceCold}</StatDisplay>
-                        <StatDisplay>Lightning Resistance: {stats.resistanceLightning}</StatDisplay>
-                        <StatDisplay>Poison Resistance: {stats.resistancePoison}</StatDisplay>
-                    </div>
+                    <Col>
+                        <CharacterQuests quests={character.quests} onChange={handleQuestChange} />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <CalculatedStatsDisplay stats={stats} />
+                    </Col>
                 </Row>
             </Col>
             <Col>

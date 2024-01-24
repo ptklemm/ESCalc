@@ -10,6 +10,7 @@ import ItemStatJson from '../data/json/ItemStatCost.json';
 import PropertyJson from '../data/json/Properties.json';
 import UniqueItemJson from '../data/json/UniqueItems.json';
 
+import { ItemTypeData } from './ItemTypeData';
 import { ItemData } from './ItemData';
 import { ItemStatCostData } from './ItemStatCostData';
 import { PropertyData } from './PropertyData';
@@ -33,7 +34,8 @@ export enum Category {
     Miscellaneous = "Miscellaneous",
     Armor = "Armor",
     Weapons = "Weapons",
-    UniqueMiscellaneous = "UniqueMiscellaneous",
+    UniqueRings = "UniqueRings",
+    UniqueAmulets = "UniqueAmulets",
     UniqueArmor = "UniqueArmor",
     UniqueWeapons = "UniqueWeapons",
     Sets = "Sets",
@@ -134,29 +136,30 @@ class ItemCatalog {
 
         // ToDo: Figure out why Typescript thinks this is an object
         (MiscellaneousJson as ItemData[]).forEach((itemData: ItemData) => {
-            this.miscellaneous.push(this.NewItem(ItemKind.BaseItem, itemData));
+            this.miscellaneous.push(this.createItem(ItemKind.BaseItem, itemData));
         });
 
         ArmorJson.forEach((itemData: ItemData) => {
-            this.armor.push(this.NewItem(ItemKind.BaseItem, itemData));
+            this.armor.push(this.createItem(ItemKind.BaseItem, itemData));
         });
 
         WeaponJson.forEach((itemData: ItemData) => {
-            this.weapons.push(this.NewItem(ItemKind.BaseItem, itemData));
+            this.weapons.push(this.createItem(ItemKind.BaseItem, itemData));
         });
 
         PropertyJson.forEach((propertyData: PropertyData) => {
-            this.properties.push(this.NewProperty(propertyData));
+            this.properties.push(this.createProperty(propertyData));
         });
 
         UniqueItemJson.forEach((uniqueItemData: UniqueItemData) => {
-            const uniqueItem = this.NewUniqueItem(uniqueItemData);
+            const uniqueItem = this.createUniqueItem(uniqueItemData);
             if (uniqueItem) this.uniques.push(uniqueItem);
         });
 
         // console.log(this.GetPropertyByCode("dmg%"))
         // console.log(this.GetUniqueItemByName("The Fires of Sunlight"));
         // console.log(this.GetUniqueItemByName("The Grandfather"));
+        console.log(this.UniqueSorcerersTalismans);
     }
 
     get AllItems() {return [ ...this.miscellaneous, ...this.armor, ...this.weapons, ...this.uniques ]}
@@ -204,6 +207,24 @@ class ItemCatalog {
 
     //#region Unique Item Getters
     get UniqueItems() {return this.uniques}
+
+    get UniqueRings() {return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.Ring, ItemType.ClassSpecific))}
+    get UniqueAmazonianLoops() { return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.AmazonianLoop))}
+    get UniqueAssassinsSpirals() { return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.AssassinsJewel))}
+    get UniqueBarbaricHoops() { return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.BarbaricKnuckle))}
+    get UniqueDruidsSeals() { return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.DruidsSeal))}
+    get UniqueNecromancersStones() { return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.NecromancersStone))}
+    get UniquePaladicHaloes() { return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.PaladicHalo))}
+    get UniqueSorcerersBands() { return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.SorcerersBand))}
+
+    get UniqueAmulets() {return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.Amulet, ItemType.ClassSpecific))}
+    get UniqueAmazonianPins() {return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.AmazonianPin))}
+    get UniqueAssassinsChokers() {return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.AssassinsChoker))}
+    get UniqueTotemicPebbles() {return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.PrimalCharm))}
+    get UniqueDruidicNecklaces() {return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.DruidicNecklace))}
+    get UniqueDeathsLockets() {return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.DeathsLocket))}
+    get UniqueHolyPendants() {return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.HolyPendant))}
+    get UniqueSorcerersTalismans() {return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.SorcerersTalisman))}
 
     get UniqueArmor() {return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.AnyArmor))}
     get UniqueHelms() {return this.SortArmor(this.GetItemsByType(this.uniques, ItemType.Helm, [ItemType.Circlet, ItemType.Pelt, ItemType.PrimalHelm]))}
@@ -269,8 +290,12 @@ class ItemCatalog {
         return results;
     }
 
-    SearchItemsByNameOrCode(searchVal: string) {
+    searchItemsByNameOrCode(searchVal: string) {
         return this.AllItems.filter(item => item.name?.toLowerCase().includes(searchVal.toLowerCase()) || item.code?.toLowerCase().includes(searchVal.toLowerCase()));
+    }
+
+    searchItemsByPropertyCode(propertyCode: string) {
+        return this.AllItems.filter(item => item.properties.find(property => property.code === propertyCode));
     }
 
     GetItemsByCategory(category: Category) {
@@ -362,13 +387,7 @@ class ItemCatalog {
     }
 
     GetItemByCode(code: string) {
-        let item: Item | undefined;
-        item = this.GetMiscByCode(code);
-        if (item) {return item;}
-        item = this.GetArmorByCode(code);
-        if (item) {return item;}
-        item = this.GetWeaponByCode(code);
-        return item;
+        return this.AllItems.findLast(item => item.code === code);
     }
     //#endregion
 
@@ -379,25 +398,25 @@ class ItemCatalog {
     //#endregion
 
     //#region Factory Methods
-    private recurseItemTypes(codeList: ItemType[], types: any[], codeToFind: ItemType): any {
+    private recurseItemTypes(codeList: ItemType[], types: ItemTypeData[], codeToFind: ItemType) {
         const codeToAdd = types.find(itemType => itemType.Code == codeToFind);
     
-        if (codeToAdd && !codeList.includes(codeToAdd.Code)) {
-            codeList.push(codeToAdd.Code);
+        if (codeToAdd && !codeList.includes(codeToAdd.Code as ItemType)) {
+            codeList.push(codeToAdd.Code as ItemType);
     
             if (codeToAdd.Equiv1) {
-                this.recurseItemTypes(codeList, types, codeToAdd.Equiv1);
+                this.recurseItemTypes(codeList, types, codeToAdd.Equiv1 as ItemType);
             }
     
             if (codeToAdd.Equiv2) {
-                this.recurseItemTypes(codeList, types, codeToAdd.Equiv2);
+                this.recurseItemTypes(codeList, types, codeToAdd.Equiv2 as ItemType);
             }
         }
     
         return codeToAdd;
     }
 
-    NewItem(itemKind: ItemKind, itemData: ItemData): Item {
+    createItem(itemKind: ItemKind, itemData: ItemData): Item {
         // Metadata
         const kind = itemKind;
         const code = itemData.code;
@@ -416,8 +435,8 @@ class ItemCatalog {
         const isWearable = Boolean(toNumber(itemType?.Body));
         const bodyLocations: BodyLocation[] = [];
         if (isWearable) {
-            bodyLocations.push(itemType!.BodyLoc1);
-            bodyLocations.push(itemType!.BodyLoc2);
+            bodyLocations.push(itemType!.BodyLoc1 as BodyLocation);
+            bodyLocations.push(itemType!.BodyLoc2 as BodyLocation);
         }
         const autoPrefix = itemData['auto prefix'];
         const staffMods = itemType?.StaffMods;
@@ -514,8 +533,9 @@ class ItemCatalog {
         }
     }
 
-    NewUniqueItem(uniqueItemData: UniqueItemData): Item | undefined {
-        const baseItem = this.GetItemByCode(uniqueItemData.code);
+    createUniqueItem(uniqueItemData: UniqueItemData): Item | undefined {
+        // const baseItem = this.GetItemByCode(uniqueItemData.code);
+        const baseItem = this.AllItems.find(item => item.code === uniqueItemData.code);
 
         if (!baseItem)
             return;
@@ -531,7 +551,7 @@ class ItemCatalog {
             const property = this.GetPropertyByCode(uniqueItemData[`prop${i}` as keyof UniqueItemData]);
             
             if (property) {
-                properties.push(this.NewItemProperty(
+                properties.push(this.createItemProperty(
                     property,
                     toNumber(uniqueItemData[`min${i}` as keyof UniqueItemData]),
                     toNumber(uniqueItemData[`max${i}` as keyof UniqueItemData]),
@@ -552,7 +572,7 @@ class ItemCatalog {
         }
     }
 
-    NewItemProperty(property: Property, min: number, max: number, parameter: string): ItemProperty {
+    createItemProperty(property: Property, min: number, max: number, parameter: string): ItemProperty {
         const code = property.code;
         const func = 7;
         const statCodes: string[] = [];
@@ -585,7 +605,7 @@ class ItemCatalog {
         }
     }
 
-    NewProperty(propertyData: PropertyData): Property {
+    createProperty(propertyData: PropertyData): Property {
         const code = propertyData.code;
         const isActive = Boolean(propertyData["*done"]);
         const description = propertyData["*desc"];
@@ -596,7 +616,7 @@ class ItemCatalog {
 
         const stats: Stat[] = [];
         for (let i = 1; i < 8; i++) {
-            const stat = this.NewStat(propertyData, i);
+            const stat = this.createStat(propertyData, i);
 
             if (stat) {
                 stats.push(stat);
@@ -615,7 +635,7 @@ class ItemCatalog {
         }
     }
     
-    NewStat(propertyData: PropertyData, i: number): Stat | undefined {
+    createStat(propertyData: PropertyData, i: number): Stat | undefined {
         const code = propertyData[`stat${i}` as keyof PropertyData];
 
         let descriptionFunction = 0;

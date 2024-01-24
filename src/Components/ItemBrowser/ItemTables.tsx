@@ -7,15 +7,41 @@ import { ItemProperty } from '../../types/Property';
 import { Category } from '../../types/ItemCatalog';
 import renderItemProperties from '../shared/renderItemProperties';
 
-const ItemTablesBreadcrumb = ({ tables }: { tables: TablesProps[]}) => {
+interface SubTableProps {
+    subheader: string;
+    items: Item[];
+}
+
+interface TableProps { 
+    header: string;
+    items?: Item[];
+    subTables?: SubTableProps[];
+}
+
+interface TablesProps {
+    header: string; 
+    items?: Item[];
+    crumb?: string;
+    subTables?: SubTableProps[];
+}
+
+interface ItemTablesProps {
+    id: string,
+    category: Category,
+    tables: TablesProps[]
+}
+
+interface ItemTablesBreadcrumbProps { 
+    tables: TablesProps[];
+}
+
+const ItemTablesBreadcrumb = ({ tables }: ItemTablesBreadcrumbProps) => {
     return (
         <Breadcrumb>
             {tables.map(table => <Breadcrumb.Item key={table.header} href={`#${table.header}`}>{table.crumb || table.header}</Breadcrumb.Item>)}
         </Breadcrumb>
     );
 }
-
-interface TableProps { items: Item[], header: string }
 
 const ArmorTable = ({ items, header}: TableProps) => {
     return (
@@ -42,7 +68,7 @@ const ArmorTable = ({ items, header}: TableProps) => {
                 </tr>
             </thead>
             <tbody>
-                {items.map(item => {
+                {items && items.map(item => {
                     return (
                         <tr key={item.code}>
                             <td>{item.code}</td>
@@ -93,7 +119,7 @@ const WeaponTable = ({ items, header}: TableProps) => {
                 </tr>
             </thead>
             <tbody>
-                {items.map(item => {
+                {items && items.map(item => {
                     return (
                         <tr key={item.code}>
                             <td>{item.code}</td>
@@ -129,51 +155,64 @@ const PropertiesCell = ({ itemCode, properties }: PropertiesCellProps) => {
     );
 }
 
-const UniqueTable = ({ items, header}: TableProps) => {
+const UniqueTableHeader = () => {
     return (
-        <Table style={{textAlign: 'center'}} id={header} bordered hover>
-            <thead>
+        <tr>
+            <th>Code</th>
+            <th>Tier</th>
+            <th>Name</th>
+            <th>QLvl</th>
+            <th>Req Lvl</th>
+            <th>Stats</th>
+        </tr>
+    );
+}
+
+const renderUniqueItems = (items: Item[]) => {
+    return items.map((item, index) => {
+        return (
+            <tr key={index}>
+                <td>{item.code}</td>
+                <td>{item.tier}</td>
+                <td>{item.name}</td>
+                <td>{item.qualityLevel}</td>
+                <td>{item.requiredLevel}</td>
+                <PropertiesCell itemCode={index} properties={item.properties} />
+            </tr>
+        );
+    });
+}
+
+const UniqueSubTable = ({ subheader, items }: SubTableProps) => {
+    return (<>
+        <tr>
+            <th colSpan={6}>{subheader}</th>
+        </tr>
+        <UniqueTableHeader />
+        {renderUniqueItems(items)}
+    </>);
+}
+
+const renderUniqueSubTables = (subTables: SubTableProps[]) => {
+    return subTables.map(table => <UniqueSubTable key={table.subheader} subheader={table.subheader} items={table.items} />);
+}
+
+const UniqueTable = ({ header, items, subTables }: TableProps) => {
+    const renderItems = items && items.length;
+    const _renderSubTables = subTables && subTables.length;
+
+    return (
+        <Table style={{textAlign: 'center'}} id={header} bordered>
+            <tbody>
                 <tr>
                     <th colSpan={6}>{header}</th>
                 </tr>
-                <tr>
-                    <th>Code</th>
-                    <th>Tier</th>
-                    <th>Name</th>
-                    <th>QLvl</th>
-                    <th>Req Lvl</th>
-                    <th>Stats</th>
-                </tr>
-            </thead>
-            <tbody>
-                {items.map((item, index) => {
-                    return (
-                        <tr key={index}>
-                            <td>{item.code}</td>
-                            <td>{item.tier}</td>
-                            <td>{item.name}</td>
-                            <td>{item.qualityLevel}</td>
-                            <td>{item.requiredLevel}</td>
-                            <PropertiesCell itemCode={index} properties={item.properties} />
-                        </tr>
-                    );
-                })}
+                {renderItems && <UniqueTableHeader />}
+                {renderItems && renderUniqueItems(items)}
+                {_renderSubTables && renderUniqueSubTables(subTables)}
             </tbody>
         </Table>
-    );   
-}
-
-interface TablesProps {
-    header: string; 
-    items: Item[]; 
-    crumb?: string;
-}
-
-
-interface ItemTablesProps {
-    id: string,
-    category: Category,
-    tables: TablesProps[]
+    );
 }
 
 export default function ItemTables({ id, category, tables }: ItemTablesProps) {
@@ -187,13 +226,12 @@ export default function ItemTables({ id, category, tables }: ItemTablesProps) {
                         {breadcrumb}
                         {category === Category.Armor && <ArmorTable items={table.items} header={table.header} />}
                         {category === Category.Weapons && <WeaponTable items={table.items} header={table.header} />}
-                        {category === Category.UniqueArmor && <UniqueTable items={table.items} header={table.header} />}
+                        {category === Category.UniqueArmor && <UniqueTable items={table.items} header={table.header} subTables={table.subTables} />}
                         {category === Category.UniqueWeapons && <UniqueTable items={table.items} header={table.header} />}
                     </Row>
                 )}
             </Col>
             <Col />
         </Row>
-        
     );
 }

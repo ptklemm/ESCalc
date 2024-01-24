@@ -45,12 +45,61 @@ export enum Attribute {
     Energy = "Energy"
 }
 
+export enum Quest {
+    DenOfEvil = "Den of Evil",
+    Radament = "Radament's Lair",
+    GoldenBird = "The Golden Bird",
+    LamEsen = "Lam Esen's Tome",
+    Izual = "The Fallen Angel",
+    Anya = "The Prison of Ice"
+}
+
+interface QuestCompletionList {
+    [Quest.DenOfEvil]: boolean;
+    [Quest.Radament]: boolean;
+    [Quest.GoldenBird]: boolean;
+    [Quest.LamEsen]: boolean;
+    [Quest.Izual]: boolean;
+    [Quest.Anya]: boolean;
+}
+
+const NewQuestCompletionList = (): QuestCompletionList => {
+    return {
+        [Quest.DenOfEvil]: false,
+        [Quest.Radament]: false,
+        [Quest.GoldenBird]: false,
+        [Quest.LamEsen]: false,
+        [Quest.Izual]: false,
+        [Quest.Anya]: false
+    }
+}
+
+export interface QuestCompletionMatrix {
+    [Difficulty.Normal]: QuestCompletionList,
+    [Difficulty.Nightmare]: QuestCompletionList,
+    [Difficulty.Hell]: QuestCompletionList
+}
+
+const NewQuestCompletionMatrix = (): QuestCompletionMatrix => {
+    return {
+        [Difficulty.Normal]: NewQuestCompletionList(),
+        [Difficulty.Nightmare]: NewQuestCompletionList(),
+        [Difficulty.Hell]: NewQuestCompletionList()
+    }
+}
+
+export interface QuestStatusChange {
+    difficulty: Difficulty;
+    quest: Quest;
+    isCompleted: boolean;
+}
+
 export interface Character {
     name: string;
     characterClass: CharacterClass;
     level: number;
     difficultyLevel: Difficulty;
-    // ToDo: Quest Completion for stats, skills, resists
+    quests: QuestCompletionMatrix;
     baseStrength: number;
     baseDexterity: number;
     baseVitality: number;
@@ -77,6 +126,7 @@ export const NewCharacter = (charClass?: CharacterClass, charName?: string): Cha
     const characterClass = charClass || CharacterClass.Amazon;
     const level = 1;
     const difficultyLevel = Difficulty.Normal;
+    const quests = NewQuestCompletionMatrix();
     let baseStrength = 15;
     let baseDexterity = 15;
     let baseVitality = 15;
@@ -123,6 +173,7 @@ export const NewCharacter = (charClass?: CharacterClass, charName?: string): Cha
         characterClass,
         level,
         difficultyLevel,
+        quests,
         baseStrength,
         baseDexterity,
         baseVitality,

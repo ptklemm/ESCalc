@@ -1,7 +1,8 @@
-import { Character, Difficulty } from "../../types/Character";
+import { Character, Difficulty, Quest } from "../../types/Character";
 import { Inventory } from "../../types/Inventory";
-import { Item, ItemIsWeapon } from "../../types/Item";
-import { ItemProperty, PropertyCode, SpecialProperty } from "../../types/Property";
+import { Item, itemIsWeapon, getItemPropertyByName, calculateWeaponDamage } from "../../types/Item";
+import { ItemProperty, PropertyCode } from "../../types/Property";
+import { toNumber } from "../../types/utils";
 
 // https://www.purediablo.com/strategy/diablo-2-guide-facts-and-formulae-archive
 
@@ -14,30 +15,15 @@ const ResistancePenalty = {
     [Difficulty.Hell]: -100
 }
 
-function SumOfBaseItemField(inventory: Inventory, field: string) {
-    let sum = 0;
-    for (const slot of Object.keys(inventory)) {
-        const item = inventory[slot];
-        if (item) {
-            sum += item[field];
-        }
-    }
-    return sum;
-}
-
-function GetItemPropertyByName(item: Item, propertyName: string) {
-    return item.properties.find(p => p.code === propertyName);
-}
-
-function SumOfProperty(inventory: Inventory, propertyName: string) {
+function SumOfProperty(inventory: Inventory, propertyName: string, useParameter?: boolean) {
     let sum = 0;
 
     for (const slot of Object.keys(inventory)) {
         const item = inventory[slot];
         if (item) {
-            const prop = GetItemPropertyByName(item, propertyName);
+            const prop = getItemPropertyByName(item, propertyName);
             if (prop) {
-                sum += prop.max;
+                sum += useParameter ? toNumber(prop.parameter) : prop.max;
             }
         }
     }
@@ -45,95 +31,54 @@ function SumOfProperty(inventory: Inventory, propertyName: string) {
     return sum;
 }
 
-function SumOfPropertyOnlyArmor(inventory: Inventory, propertyName: string) {
-    let total = SumOfProperty(inventory, propertyName);
+function SumOfPropertyOnlyArmor(inventory: Inventory, propertyName: string, useParameter?: boolean) {
+    let total = SumOfProperty(inventory, propertyName, useParameter);
     let tempProp: ItemProperty | undefined;
 
-    if (inventory.Primary1 && ItemIsWeapon(inventory.Primary1)) {
-        tempProp = GetItemPropertyByName(inventory.Primary1, propertyName);
+    if (inventory.Primary1 && itemIsWeapon(inventory.Primary1)) {
+        tempProp = getItemPropertyByName(inventory.Primary1, propertyName);
 
         if (tempProp) { 
-            total -= tempProp.max
+            total -= useParameter ? toNumber(tempProp.parameter) : tempProp.max;
         }
     }
 
-    if (inventory.Secondary1 && ItemIsWeapon(inventory.Secondary1)) {
-        tempProp = GetItemPropertyByName(inventory.Secondary1, propertyName);
+    if (inventory.Secondary1 && itemIsWeapon(inventory.Secondary1)) {
+        tempProp = getItemPropertyByName(inventory.Secondary1, propertyName);
 
         if (tempProp) { 
-            total -= tempProp.max
+            total -= useParameter ? toNumber(tempProp.parameter) : tempProp.max;
         }
     }
 
     return total;
 }
 
-function calculateWeaponDamage(weapon: Item | null, characterLevel: number): [number, number] {
-    // Normal
-    // Weapon Minimum Damage = Base Minimum Damage * (1 + (+x% Enhanced Damage)/100) + (+x to Minimum Damage)
-    // Weapon Maximum Damage = Base Maximum Damage * (1 + (+x% Enhanced Damage)/100) + (+x to Maximum Damage)
-
-    // Ethereal
-    // Weapon Minimum Damage = [[Base Minimum Damage * 1.5] * (1+ (+x % Enhanced Damage)/100)] + (+x to Minimum Damage)
-    // Weapon Maximum Damage = [[Base Maximum Damage * 1.5] * (1+ (+x % Enhanced Damage)/100)] + (+x to Maximum Damage)
-    
-    if (!weapon) {
-        return [1, 2];
-    }
-
-    const BaseDamageMin = weapon.is2H ? weapon.damageMin2H : weapon.damageMin;
-    const BaseDamageMax = weapon.is2H ? weapon.damageMax2H : weapon.damageMax;
-
-    const ethereal = GetItemPropertyByName(weapon, SpecialProperty.Ethereal);
-    const enhancedDmgProperty = GetItemPropertyByName(weapon, SpecialProperty.EnhancedDamage);
-    const plusMinDmgProperty = GetItemPropertyByName(weapon, SpecialProperty.PlusMinimumDamage);
-    const plusMaxDmgProperty = GetItemPropertyByName(weapon, SpecialProperty.PlusMaximumDamage);
-    const plusMaxDmgPerLvlProperty = GetItemPropertyByName(weapon, "dmg/lvl");
-
-    // To Do: This formula uses Max ED. Future release to allow use of Min, Avg, or a specific amount.
-    const EnhancedDamage = enhancedDmgProperty ? enhancedDmgProperty.max : 0;
-    const ExtraMinimumDamage = plusMinDmgProperty ? plusMinDmgProperty.max : 0;
-    const ExtraMaximumDamage = plusMaxDmgProperty ? plusMaxDmgProperty.max : 0;
-    const ExtraMaxDmgFromLvl = plusMaxDmgPerLvlProperty ? Math.floor((Number(plusMaxDmgPerLvlProperty.parameter) / 8) * characterLevel) : 0;
-
-    let EtherealModifier;
-    if (ethereal) {
-        EtherealModifier = 1.5;
-    } else {
-        EtherealModifier = 1.0;
-    }
-
-    const DamageMin = Math.floor(Math.floor(BaseDamageMin * EtherealModifier) * (1 + EnhancedDamage / 100)) + ExtraMinimumDamage;
-    const DamageMax = Math.floor(Math.floor(BaseDamageMax * EtherealModifier) * (1 + EnhancedDamage / 100)) + ExtraMaximumDamage + ExtraMaxDmgFromLvl;
-    
-    return [DamageMin, DamageMax];
-}
-
-interface ModifiedAttributes {
+interface Attributes {
     strength: number;
     dexterity: number; 
     vitality: number; 
     energy: number;
 }
 
-function calculateStatBonus(modifiedAttributes: ModifiedAttributes, item: Item | null) {
+function calculateStatBonus(modifiedAttributes: Attributes, item: Item | null) {
     if (!item) {
         return 0;
     }
 
-    const strBonus = (modifiedAttributes.strength * (item.strengthBonus / 100) / 100);
-    const dexBonus = (modifiedAttributes.dexterity * (item.dexterityBonus / 100) / 100);
+    const strBonus = (modifiedAttributes.strength * (item.strengthBonus / 100)) / 100;
+    const dexBonus = (modifiedAttributes.dexterity * (item.dexterityBonus / 100)) / 100;
     return strBonus + dexBonus;
 }
 
-function calculateTotalDamage(character: Character, modifiedAttributes: ModifiedAttributes, inventory: Inventory) {
+function calculateTotalDamage(character: Character, modifiedAttributes: Attributes, inventory: Inventory) {
     // Total Minimum Damage = (Weapon Minimum Damage + (+x To Minimum Damage)) * (1 + StatBonus + (+x% Enhanced Damage) / 100)
     // Total Maximum Damage = (Weapon Maximum Damage + (+x To Maximum Damage)) * (1 + StatBonus + (+x % Enhanced Damage) / 100)
     const [WeaponDamageMin, WeaponDamageMax] = calculateWeaponDamage(inventory.Primary1, character.level);
-    const ExtraMinDamage = SumOfPropertyOnlyArmor(inventory, SpecialProperty.PlusMinimumDamage);
-    const ExtraMaxDamage = SumOfPropertyOnlyArmor(inventory, SpecialProperty.PlusMaximumDamage);
+    const ExtraMinDamage = SumOfPropertyOnlyArmor(inventory, PropertyCode.PlusMinimumDamage);
+    const ExtraMaxDamage = SumOfPropertyOnlyArmor(inventory, PropertyCode.PlusMaximumDamage);
     const StatBonus = calculateStatBonus(modifiedAttributes, inventory.Primary1);
-    const EnhancedDamage = SumOfPropertyOnlyArmor(inventory, SpecialProperty.EnhancedDamage);
+    const EnhancedDamage = SumOfPropertyOnlyArmor(inventory, PropertyCode.EnhancedDamage);
 
     const damageMin = Math.floor((WeaponDamageMin + ExtraMinDamage) * (1 + StatBonus + (EnhancedDamage / 100)));
     const damageMax = Math.floor((WeaponDamageMax + ExtraMaxDamage) * (1 + StatBonus + (EnhancedDamage / 100)));
@@ -144,23 +89,29 @@ function calculateTotalDamage(character: Character, modifiedAttributes: Modified
     }
 }
 
-function calculateAttributes(inventory: Inventory) {
-    const AllStats = SumOfProperty(inventory, PropertyCode.AllStats) 
-    const strength = SumOfProperty(inventory, PropertyCode.Strength) + AllStats;
-    const dexterity = SumOfProperty(inventory, PropertyCode.Dexterity) + AllStats;
-    const vitality = SumOfProperty(inventory, PropertyCode.Vitality) + AllStats;
-    const energy = SumOfProperty(inventory, PropertyCode.Energy) + AllStats;
+function calculateAttributesFromItems(inventory: Inventory, characterLevel: number): Attributes {
+    const AllStats  = SumOfProperty(inventory, PropertyCode.AllStats );
 
-    return {
-        strength,
-        dexterity,
-        vitality,
-        energy
-    }
+    const StrengthFromLevels  = (SumOfProperty(inventory, PropertyCode.StrengthPerLevel)  * 0.25) * characterLevel;
+    const DexterityFromLevels = (SumOfProperty(inventory, PropertyCode.DexterityPerLevel) * 0.25) * characterLevel;
+    const VitalityFromLevels  = (SumOfProperty(inventory, PropertyCode.VitalityPerLevel)  * 0.25) * characterLevel;
+    const EnergyFromLevels    = (SumOfProperty(inventory, PropertyCode.EnergyPerLevel)    * 0.25) * characterLevel;
+
+    const strength  = SumOfProperty(inventory, PropertyCode.Strength ) + StrengthFromLevels  + AllStats;
+    const dexterity = SumOfProperty(inventory, PropertyCode.Dexterity) + DexterityFromLevels + AllStats;
+    const vitality  = SumOfProperty(inventory, PropertyCode.Vitality ) + VitalityFromLevels  + AllStats;
+    const energy    = SumOfProperty(inventory, PropertyCode.Energy   ) + EnergyFromLevels    + AllStats;
+
+    return { strength, dexterity, vitality, energy }
 }
 
+// function calculateDefenseFromItems(inventory: Inventory) {
+//     let totalDefense = 0;
+// }
+
 function calculateInventoryStats(inventory: Inventory) {
-    const defense = SumOfBaseItemField(inventory, "defenseMax");
+    // const defense = SumOfBaseItemField(inventory, "defenseMax");
+    const defense = 0;
     const chanceToBlock = inventory.secondary1 ? inventory.secondary1.chanceToBlock : 0;
 
     return {
@@ -169,7 +120,101 @@ function calculateInventoryStats(inventory: Inventory) {
     }
 }
 
-export default function calculateStats(character: Character, inventory: Inventory) {
+function calculateLife(character: Character, inventory: Inventory, attributesFromItems: Attributes) {
+    // https://forums.d2jsp.org/topic.php?t=28710016&f=87
+
+    // Max Life = (Boostable Life)*(1 + Life Boost/100) + Non-boostable Life
+    // Max Mana = (Boostable Mana)*(1 + Mana Boost/100) + Non-boostable Mana
+    // Max Stamina = (Boostable Stamina)*(1 + Stamina Boost/100) + Non-boostable Stamina
+
+    // Boostable Life / Mana bonuses
+    // Life / Mana gained naturally per level-up *)
+    // Life / Mana gained from points spent in Vitality / Energy **)
+    // Life / Mana gained from the item bonuses, "+X to Life" / "+Y to Mana"
+    // Life gained from a Potion of Life ("+20 to Life"), quest reward, "The Golden Bird" (Act III)
+
+    // Non-boostable Life / Mana bonuses
+    // Life / Mana gained from Vitality / Energy item bonuses (e.g. Infinity, The Oculus, Lidless Wall)
+    // Life / Mana gained from Character Level based item bonuses (e.g. Fortitude, Harlequin Crest, Wizardspike)
+
+    const BaseLife = character.baseLife;
+    const LifeFromLevels = (character.lifePerLevel / 4) * (character.level - 1);
+    const LifeFromCharacterVitality = (character.lifePerVitality / 4) * (character.vitality - character.baseVitality);
+    const PlusLife = SumOfProperty(inventory, PropertyCode.Life);
+    let LifeFromQuests = 0;
+    if (character.quests[Difficulty.Normal][Quest.GoldenBird]) { LifeFromQuests += 20; }
+    if (character.quests[Difficulty.Nightmare][Quest.GoldenBird]) { LifeFromQuests += 20; }
+    if (character.quests[Difficulty.Hell][Quest.GoldenBird]) { LifeFromQuests += 20; }
+
+    const PlusMaximumLifePercent = SumOfProperty(inventory, PropertyCode.LifePercent);
+
+    const LifeFromItemVitality = (character.lifePerVitality / 4) * attributesFromItems.vitality;
+    const LifeFromItemLifePerLevel = (SumOfProperty(inventory, PropertyCode.LifePerLevel, true) / 8) * character.level;
+
+    const MaximumLife = Math.floor((BaseLife + LifeFromLevels + LifeFromCharacterVitality + PlusLife + LifeFromQuests) * (1 + (PlusMaximumLifePercent / 100)) + LifeFromItemVitality + LifeFromItemLifePerLevel);
+
+    return MaximumLife;
+}
+
+function calculateMana(character: Character, inventory: Inventory, attributesFromItems: Attributes) {
+    const BaseMana = character.baseMana;
+    const ManaFromLevels = (character.manaPerLevel / 4) * (character.level - 1);
+    const ManaFromCharacterEnergy = (character.manaPerEnergy / 4) * (character.energy - character.baseEnergy);
+    const PlusMana = SumOfProperty(inventory, PropertyCode.Mana);
+
+    const PlusMaximumManaPercent = SumOfProperty(inventory, PropertyCode.ManaPercent);
+
+    const ManaFromItemEnergy = (character.manaPerEnergy / 4) * attributesFromItems.energy;
+    const ManaFromItemManaPerLevel = (SumOfProperty(inventory, PropertyCode.ManaPerLevel, true) / 8) * character.level;
+
+    const MaximumMana = Math.floor((BaseMana + ManaFromLevels + ManaFromCharacterEnergy + PlusMana) * (1 + (PlusMaximumManaPercent / 100)) + ManaFromItemEnergy + ManaFromItemManaPerLevel);
+
+    return MaximumMana;
+}
+
+function calculateStamina(character: Character, inventory: Inventory, attributesFromItems: Attributes) {
+    const BaseStamina = character.baseStamina;
+    const StaminaFromLevels = (character.staminaPerLevel / 4) * (character.level - 1);
+    const StaminaFromCharacterVitality = (character.staminaPerVitality / 4) * (character.vitality - character.baseVitality);
+    const PlusStamina = SumOfProperty(inventory, PropertyCode.Stamina);
+
+    const StaminaFromItemVitality = (character.staminaPerVitality / 4) * attributesFromItems.vitality;
+    const StaminaFromItemStaminaPerLevel = (SumOfProperty(inventory, PropertyCode.StaminaPerLevel, true) / 8) * character.level;
+
+    const MaximumStamina = Math.floor(BaseStamina + StaminaFromLevels + StaminaFromCharacterVitality + PlusStamina + StaminaFromItemVitality + StaminaFromItemStaminaPerLevel);
+
+    return MaximumStamina;
+}
+
+export interface CalculatedStats {
+    totalStatPoints: number;
+    statsInStrength: number;
+    statsInDexterity: number;
+    statsInVitality: number;
+    statsInEnergy: number;
+    statPointsSpent: number;
+    statPointsRemaining: number;
+    strength: number;
+    dexterity: number;
+    vitality: number;
+    energy: number;
+    life: number;
+    mana: number;
+    stamina: number;
+    attackDamageMin: number;
+    attackDamageMax: number;
+    attackRating: number;
+    chanceToHit: number;
+    defense: number;
+    chanceToBeHit: number;
+    chanceToBlock: number;
+    resistanceFire: number;
+    resistanceCold: number;
+    resistanceLightning: number;
+    resistancePoison: number;
+}
+
+export function calculateStats(character: Character, inventory: Inventory): CalculatedStats {
     const totalStatPoints = (character.level - 1) * character.statPointsPerLevel;
     const statsInStrength = character.strength - character.baseStrength;
     const statsInDexterity = character.dexterity - character.baseDexterity;
@@ -179,22 +224,21 @@ export default function calculateStats(character: Character, inventory: Inventor
     const statPointsRemaining = totalStatPoints - statPointsSpent;
 
     // Modify Base Attributes before performing other calculations
-    const attributesFromItems = calculateAttributes(inventory);
+    const attributesFromItems = calculateAttributesFromItems(inventory, character.level);
     const strength = character.strength + attributesFromItems.strength;
     const dexterity = character.dexterity + attributesFromItems.dexterity;
     const vitality = character.vitality + attributesFromItems.vitality;
     const energy = character.energy + attributesFromItems.energy;
-    const modifiedAttributes: ModifiedAttributes = { strength, dexterity, vitality, energy };
+    const modifiedAttributes: Attributes = { strength, dexterity, vitality, energy };
 
-    // Calculate general stats
-    const inventoryStats = calculateInventoryStats(inventory);
-
-    const life = Math.floor(character.baseLife + (character.lifePerLevel * 0.25 * character.level) + (character.lifePerVitality * 0.25 * (vitality - character.baseVitality)));
-    const mana = Math.floor(character.baseMana + (character.manaPerLevel * 0.25 * character.level) + (character.manaPerEnergy * 0.25 * (energy - character.baseEnergy)));
-    const stamina = Math.floor(character.baseStamina + (character.staminaPerLevel * 0.25 * character.level) + (character.staminaPerVitality * 0.25 * (vitality - character.baseVitality)));
+    const life = calculateLife(character, inventory, attributesFromItems);
+    const mana = calculateMana(character, inventory, attributesFromItems);
+    const stamina = calculateStamina(character, inventory, attributesFromItems);
 
     const attackRating = ((character.dexterity - 7) * AttackRatingPerDexterity) + character.toHitFactor;
     const chanceToHit = 95;
+
+    const inventoryStats = calculateInventoryStats(inventory);
     
     const defense = Math.floor(character.dexterity * DefensePerDexterity) + inventoryStats.defense;
     const chanceToBeHit = 95;
