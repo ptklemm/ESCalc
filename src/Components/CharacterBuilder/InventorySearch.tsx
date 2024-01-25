@@ -15,7 +15,8 @@ import {
     changeCharacterClass,
     changeRequiredLevel
 } from '../../redux/inventorySearchReducer.ts';
-import { ItemCatalogContext, Category, CATEGORY_OPTIONS } from '../../types/ItemCatalog.ts';
+import { EasternSunCatalogContext } from '../../types/EasternSunCatalog.ts';
+import { Category, CATEGORY_OPTIONS } from '../../types/ItemCatalog.ts';
 import { Item } from '../../types/Item.ts';
 // import { ItemProperty } from '../../types/Property.ts';
 import { CharacterClass, CLASS_OPTIONS } from '../../types/Character.ts';
@@ -30,7 +31,7 @@ interface InventorySearchProps {
 export default function InventorySearch({ calledFromInventory, onItemSelected }: InventorySearchProps) {
     const dispatch = useAppDispatch();
 
-    const catalog = useContext(ItemCatalogContext);
+    const catalog = useContext(EasternSunCatalogContext);
 
     const options = useAppSelector(state => state.inventorySearch);
   
@@ -83,7 +84,7 @@ export default function InventorySearch({ calledFromInventory, onItemSelected }:
 
     useEffect(() => {
         if (calledFromInventory) {
-            const res = catalog.SearchForItems(options);
+            const res = catalog.items.SearchForItems(options);
             setResults(res);
         }
     }, [calledFromInventory, options, catalog]);

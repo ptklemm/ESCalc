@@ -7,17 +7,17 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { Outlet, Link } from "react-router-dom";
-import { ItemCatalogContext } from './types/ItemCatalog.ts';
+import { EasternSunCatalogContext } from './types/EasternSunCatalog.ts';
 
 export default function ESCalc() {
-    const catalog = useContext(ItemCatalogContext);
+    const catalog = useContext(EasternSunCatalogContext);
 
     const [searchValue, setSearchValue] = useState("");
     
     const search = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        let res = catalog.searchItemsByNameOrCode(searchValue);
-        res = res.concat(catalog.searchItemsByPropertyCode(searchValue));
+        let res = catalog.items.searchItemsByNameOrCode(searchValue);
+        res = res.concat(catalog.items.searchItemsByPropertyCode(searchValue));
         console.log(res);
     }
 

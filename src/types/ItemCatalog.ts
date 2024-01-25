@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { createContext } from 'react';
 
 import strings from '../data/json/strings.json';
 import ItemTypes from '../data/json/ItemTypes.json';
@@ -120,7 +119,7 @@ export const DEFAULT_ITEM_SEARCH_OPTIONS: ItemSearchOptions = {
     requiredLevel: 1
 }
 
-class ItemCatalog {
+export default class ItemCatalog {
     private miscellaneous: Item[];
     private armor: Item[];
     private weapons: Item[];
@@ -676,5 +675,3 @@ class ItemCatalog {
     }
     //#endregion
 }
-
-export const ItemCatalogContext = createContext(new ItemCatalog());

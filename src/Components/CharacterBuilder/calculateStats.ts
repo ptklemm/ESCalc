@@ -196,6 +196,22 @@ function calculateStatPoints(character: Character) {
     return ((character.level - 1) * character.statPointsPerLevel) + statPointsFromQuests;
 }
 
+function calculateAttackRating(character: Character, inventory: Inventory, modifiedAttributes: Attributes) {
+    const baseAttackRating = ((modifiedAttributes.dexterity - 7) * AttackRatingPerDexterity) + character.toHitFactor;
+    
+    const plusAttackRating = SumOfProperty(inventory, PropertyCode.AttackRating);
+    const plusAttackRatingPerLevel = SumOfProperty(inventory, PropertyCode.AttackRatingPerLevel, true) / 2;
+    const totalPlusAttackRating = plusAttackRating + (plusAttackRatingPerLevel * character.level);
+
+    const attackRatingPercent = SumOfProperty(inventory, PropertyCode.AttackRatingPercent);
+    const attackRatingPercentPerLevel = SumOfProperty(inventory, PropertyCode.AttackRatingPercentPerLevel, true) / 2;
+    const totalAttackRatingPercent = (attackRatingPercent + (attackRatingPercentPerLevel * character.level)) / 100;
+
+    const attackRating = Math.floor((baseAttackRating + totalPlusAttackRating) * (1 + totalAttackRatingPercent));
+
+    return attackRating;
+}
+
 function calculateResistances(character: Character, inventory: Inventory) {
     let resistancesFromQuests = 0;
 
@@ -267,8 +283,9 @@ export function calculateStats(character: Character, inventory: Inventory): Calc
     const mana = calculateMana(character, inventory, attributesFromItems);
     const stamina = calculateStamina(character, inventory, attributesFromItems);
 
-    const attackRating = ((character.dexterity - 7) * AttackRatingPerDexterity) + character.toHitFactor;
-    const chanceToHit = 95;
+    const attackRating = calculateAttackRating(character, inventory, modifiedAttributes);
+    // 100 * AR / (AR + DR) * 2 * alvl / (alvl + dlvl)
+    const chanceToHit = Math.floor(100 * (attackRating / (attackRating + 5000)) * 2 * (character.level / (character.level + character.level)));
 
     const inventoryStats = calculateInventoryStats(inventory);
     

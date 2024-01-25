@@ -194,7 +194,7 @@ export default function CharacterBuilder() {
                                 <AttributeInputGroup id={Attribute.Dexterity} label={Attribute.Dexterity} value={attributes.dexterity} displayValue={stats.dexterity} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
                                 <AttributeInputGroup id={Attribute.Vitality} label={Attribute.Vitality} value={attributes.vitality} displayValue={stats.vitality} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
                                 <AttributeInputGroup id={Attribute.Energy} label={Attribute.Energy} value={attributes.energy} displayValue={stats.energy} onChange={handleAttributeChange} onBlur={handleAttributeBlur} />
-                                <Form.Text>Points Remaining: {stats.statPointsRemaining}</Form.Text>
+                                <Form.Text style={{visibility: stats.statPointsRemaining > 0 ? 'visible' : 'hidden'}} className="text-danger">Points Remaining: {stats.statPointsRemaining}</Form.Text>
                             </fieldset>
                         </Form>
                     </Col>

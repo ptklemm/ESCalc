@@ -25,7 +25,7 @@ export default function CalculatedStatsDisplay({ stats }: CalculatedStatsDisplay
                     </tr>
                     <StatDisplay label="Attack Damage:">{stats.attackDamageMin}-{stats.attackDamageMax}</StatDisplay>
                     <StatDisplay label="Attack Rating:">{stats.attackRating}</StatDisplay>
-                    <StatDisplay label="Chance to Hit:">{stats.chanceToHit}</StatDisplay>
+                    <StatDisplay label="Chance to Hit:">{stats.chanceToHit}%</StatDisplay>
                     <StatDisplay label="Defense:">{stats.defense}</StatDisplay>
                     <StatDisplay label="Chance to be Hit:">{stats.chanceToBeHit}</StatDisplay>
                     <StatDisplay label="Chance to Block:">{stats.chanceToBlock}</StatDisplay>
